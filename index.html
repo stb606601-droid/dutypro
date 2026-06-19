@@ -44,6 +44,30 @@
 
   <!-- ===== AOS ===== -->
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+  <style>
+    /* ===== OVERRIDE BOOTSTRAP/BULMA YANG GANGGU ===== */
+    .container, .container-fluid {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    .row {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+    .col {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    .btn {
+      border-radius: 40px !important;
+    }
+    select.form-control, select.form-select {
+      background-color: var(--bg) !important;
+      color: white !important;
+      border-color: var(--border) !important;
+    }
+  </style>
 </head>
 <body>
 
@@ -200,8 +224,9 @@
   let dataJadwal = {};
   let isAdmin = false;
   const petugasList = ['Ajik Su', 'Wayan S', 'Mang Beni', 'Indra S', 'Kadek Widana'];
-  let currentMonth = new Date().getMonth();
-  let currentYear = new Date().getFullYear();
+  const now = new Date();
+  let currentMonth = now.getMonth();
+  let currentYear = now.getFullYear();
   let isLoading = false;
   let supabaseClient = null;
   let chartInstance = null;
@@ -480,7 +505,7 @@
   });
 
   // ============================================================
-  //  MONTH / YEAR SELECTOR
+  //  MONTH / YEAR SELECTOR (OTOMATIS BULAN & TAHUN SEKARANG)
   // ============================================================
   function populateYearSelector() {
     const sel = document.getElementById('year-selector');
@@ -493,6 +518,12 @@
       if (y === currentYear) opt.selected = true;
       sel.appendChild(opt);
     }
+  }
+
+  function setCurrentMonth() {
+    const monthSelector = document.getElementById('month-selector');
+    const currentMonth = new Date().getMonth();
+    monthSelector.value = currentMonth;
   }
 
   document.getElementById('btn-go-month').addEventListener('click', function() {
@@ -817,10 +848,11 @@
   // ============================================================
   async function initApp() {
     populateYearSelector();
+    setCurrentMonth();
     await fetchJadwal();
     autoDeleteExpired();
     document.querySelector('.tab-btn[data-tab="preview"]').click();
-    console.log('✅ Aplikasi siap (CSS Eksternal | Pilih Bulan/Tahun)');
+    console.log('✅ Aplikasi siap (CSS Fix | Bulan & Tahun Sekarang)');
   }
 
   initApp();
