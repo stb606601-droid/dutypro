@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#121212" />
+  <title>Duty Schedule Pro</title>
+
+  <!-- Icon PWA -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* (CSS sama seperti sebelumnya – tidak diubah) */
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --border: #2c2c2c;
+      --accent: #25d366;
+      --blue: #003a5c;
+      --green: #004d00;
+      --text: #f0f0f0;
+    }
+    body {
+      margin: 0;
+      padding: 15px 12px;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-bottom: 80px;
+    }
+    h1 {
+      text-align: center;
+      margin: 0 0 5px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      font-size: 1.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    h1 i { font-size: 2rem; color: var(--accent); }
+
+    /* TABS */
+    .tab-bar {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 15px 0 10px;
+    }
+    .tab-btn {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 40px;
+      font-size: 1rem;
+      font-weight: 600;
+      background: var(--card);
+      color: #aaa;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #121212;
+      border-color: var(--accent);
+    }
+    .tab-btn:hover { opacity: 0.8; }
+    .tab-content {
+      display: none;
+      margin-top: 10px;
+    }
+    .tab-content.active { display: block; }
+
+    /* PREVIEW TABLE */
+    #preview-table-wrap {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 15px 10px;
+      border: 1px solid var(--border);
+      overflow-x: auto;
+    }
+    #preview-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    #preview-table th {
+      background: #1e3a5f;
+      color: white;
+      padding: 10px 6px;
+      border: 1px solid #0f2a44;
+      text-align: center;
+    }
+    #preview-table td {
+      border: 1px solid #333;
+      padding: 8px 6px;
+      vertical-align: top;
+    }
+    #preview-table tr:nth-child(even) { background: #1a1a1a; }
+    .preview-empty { text-align: center; padding: 30px; color: #888; }
+
+    /* ADMIN */
+    #live-clock {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 600;
+      margin: 5px 0 10px;
+      color: var(--accent);
+      background: var(--card);
+      padding: 8px 15px;
+      border-radius: 50px;
+      display: inline-block;
+      width: auto;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      letter-spacing: 2px;
+      border: 1px solid var(--border);
+    }
+    .clock-container { display: flex; justify-content: center; margin-bottom: 10px; }
+    #greeting {
+      text-align: center;
+      margin: 0 0 10px;
+      color: #b0b0b0;
+      font-size: 1.1rem;
+      border-bottom: 1px dashed #2f2f2f;
+      padding-bottom: 10px;
+    }
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      background: transparent;
+    }
+    .day {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 3px 5px;
+      min-height: 75px;
+      cursor: pointer;
+      position: relative;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: 0.1s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .day strong { font-size: 1.3rem; font-weight: 400; margin-bottom: 3px; }
+    .day.today { background: var(--green); border: 1px solid #00a86b; }
+    .day.has-data { background: var(--blue); }
+    .day.has-data.today { background: linear-gradient(145deg, #004d00, #003366); }
+    .day:active { transform: scale(0.96); }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin: 18px 0 5px;
+    }
+    .btn {
+      flex: 1;
+      border: none;
+      padding: 14px 0;
+      border-radius: 40px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      color: white;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: 0.2s;
+    }
+    .btn-share { background: #1f9e5a; }
+    .btn-png { background: #3b5f7a; }
+    .btn-reset { background: #7a3b3b; }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,10,0.8);
+      backdrop-filter: blur(4px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: var(--card);
+      padding: 20px 16px;
+      width: 92%;
+      max-width: 360px;
+      border-radius: 28px;
+      border: 1px solid #3a3a3a;
+      box-shadow: 0 20px 30px #00000055;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .modal-content h3 {
+      margin-top: 0;
+      margin-bottom: 18px;
+      font-weight: 400;
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 8px;
+      display: inline-block;
+      width: auto;
+      padding-right: 5px;
+    }
+    .section {
+      margin-bottom: 18px;
+      padding: 14px 12px;
+      border-radius: 18px;
+      background: #1b2b36;
+    }
+    .blue { background: #0a2c3d; border-left: 4px solid #2a7faa; }
+    .green { background: #0a3d2a; border-left: 4px solid #2ecc71; }
+    .section h4 {
+      margin: 0 0 12px 0;
+      font-size: 15px;
+      letter-spacing: 0.5px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .section-title-wrapper {
+      display: inline-block;
+      border-bottom: 2px solid rgba(255,255,255,0.3);
+      padding-bottom: 4px;
+      margin-bottom: 10px;
+    }
+    .section-title-wrapper h4 { margin: 0; padding: 0; border: none; }
+    label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 9px;
+      font-size: 15px;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+    .close-btn {
+      float: right;
+      background: #3c3c3c;
+      border: none;
+      border-radius: 30px;
+      width: 32px;
+      height: 32px;
+      font-size: 18px;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: -8px;
+      margin-right: -6px;
+      transition: 0.1s;
+    }
+    .close-btn:hover { background: #5a5a5a; }
+
+    /* PRINT AREA */
+    #print-area {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      width: 1000px;
+      background: white;
+      color: black;
+      padding: 30px 25px;
+      font-family: Arial, sans-serif;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+    #print-area h2 {
+      color: #1e3a5f;
+      font-size: 2rem;
+      margin-top: 0;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 10px;
+    }
+    #print-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    #print-table td {
+      border: 1px solid #333;
+      padding: 12px 8px;
+      vertical-align: top;
+    }
+    #print-table tr:first-child td {
+      background: #1e3a5f;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+      border-color: #0f2a44;
+    }
+
+    audio { display: none; }
+
+    /* PIN SCREEN */
+    #admin-pin-screen { text-align: center; padding: 30px; }
+    #admin-pin-screen i { font-size: 3rem; color: #888; }
+    #admin-pin-screen p { margin: 15px 0; }
+    #pin-input {
+      padding: 10px 20px;
+      border-radius: 30px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: white;
+      width: 200px;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+    #pin-login-btn {
+      background: var(--accent);
+      color: #121212;
+      padding: 10px 30px;
+      border: none;
+      border-radius: 30px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #pin-error { color: #e74c3c; margin-top: 10px; display: none; }
+
+    /* FLOATING CHAT */
+    #chat-fab {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      z-index: 999;
+      background: var(--accent);
+      color: #121212;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      cursor: pointer;
+      border: none;
+      transition: 0.2s;
+    }
+    #chat-fab:hover { transform: scale(1.05); }
+
+    #chat-panel {
+      position: fixed;
+      bottom: 95px;
+      right: 25px;
+      width: 340px;
+      max-width: 90vw;
+      max-height: 450px;
+      background: var(--card);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+      display: none;
+      flex-direction: column;
+      z-index: 998;
+      overflow: hidden;
+    }
+    #chat-panel.open { display: flex; }
+    #chat-panel-header {
+      padding: 12px 16px;
+      background: var(--accent);
+      color: #121212;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #2a2a2a;
+    }
+    #chat-panel-header button {
+      background: transparent;
+      border: none;
+      color: #121212;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    #chat-panel-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 14px;
+      background: #0d0d0d;
+      max-height: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    #chat-panel-messages .msg {
+      padding: 4px 0;
+      border-bottom: 1px solid #222;
+      font-size: 0.95rem;
+    }
+    #chat-panel-messages .msg .time {
+      color: #666;
+      font-size: 0.7rem;
+      margin-right: 8px;
+    }
+    #chat-panel-input {
+      display: flex;
+      gap: 8px;
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+      background: var(--card);
+    }
+    #chat-panel-input input {
+      flex: 1;
+      padding: 8px 14px;
+      border-radius: 30px;
+      border: 1px solid var(--border);
+      background: #121212;
+      color: white;
+      outline: none;
+    }
+    #chat-panel-input input::placeholder { color: #555; }
+    #chat-panel-input button {
+      background: var(--accent);
+      border: none;
+      border-radius: 30px;
+      padding: 0 16px;
+      font-weight: 600;
+      color: #121212;
+      cursor: pointer;
+    }
+    #chat-panel-input button:hover { opacity: 0.8; }
+
+    @media (max-width: 600px) {
+      .tab-btn { padding: 8px 16px; font-size: 0.9rem; }
+      #preview-table { font-size: 12px; }
+      #preview-table th, #preview-table td { padding: 6px 4px; }
+      #chat-panel { width: 90vw; right: 5vw; bottom: 85px; }
+      #chat-fab { width: 54px; height: 54px; font-size: 24px; bottom: 20px; right: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<h1><i class="fa-solid fa-helmet-safety"></i> DUTY PRO</h1>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="preview"><i class="fa-regular fa-eye"></i> Preview</button>
+  <button class="tab-btn" data-tab="admin"><i class="fa-solid fa-user-shield"></i> Admin</button>
+</div>
+
+<!-- TAB PREVIEW -->
+<div id="preview-tab" class="tab-content active">
+  <div id="preview-table-wrap">
+    <table id="preview-table">
+      <thead>
+        <tr><th>Tanggal</th><th>Bungkulan Post</th><th>Komodo Warehouse</th></tr>
+      </thead>
+      <tbody id="preview-body"><tr><td colspan="3" class="preview-empty">Memuat data...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB ADMIN -->
+<div id="admin-tab" class="tab-content">
+  <!-- PIN Screen -->
+  <div id="admin-pin-screen">
+    <i class="fa-solid fa-lock"></i>
+    <p>Masukkan PIN untuk mengakses Admin</p>
+    <input type="password" id="pin-input" placeholder="PIN 4321" />
+    <br><br>
+    <button id="pin-login-btn">Masuk</button>
+    <p id="pin-error">PIN salah, coba lagi.</p>
+  </div>
+
+  <!-- Admin Content -->
+  <div id="admin-content" style="display:none;">
+    <div class="clock-container"><div id="live-clock">--:--:--</div></div>
+    <div id="greeting"></div>
+    <div class="calendar" id="calendar"></div>
+    <div class="button-group">
+      <button class="btn btn-share" onclick="shareToday()"><i class="fab fa-whatsapp"></i> Share</button>
+      <button class="btn btn-png" onclick="saveAsImage()"><i class="fas fa-image"></i> PNG</button>
+      <button class="btn btn-reset" onclick="resetJadwal()"><i class="fas fa-trash"></i> Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <h3 id="modal-date">📅 Pilih Tanggal</h3>
+    <div id="checkbox-list"></div>
+  </div>
+</div>
+
+<!-- PRINT AREA -->
+<div id="print-area">
+  <h2>🪖 DUTY SCHEDULE</h2>
+  <table id="print-table"></table>
+  <p style="text-align:right; margin-top:20px; font-style:italic;">generated by: Leong</p>
+</div>
+
+<audio id="tingtong" preload="auto">
+  <source src="https://notificationsounds.com/storage/sounds/file-sounds-1157-ting-tong.mp3" type="audio/mpeg" />
+</audio>
+
+<!-- FLOATING CHAT -->
+<button id="chat-fab"><i class="fa-regular fa-comment-dots"></i></button>
+<div id="chat-panel">
+  <div id="chat-panel-header">
+    <span><i class="fa-regular fa-comment-dots"></i> Live Chat</span>
+    <button id="chat-close-btn">&times;</button>
+  </div>
+  <div id="chat-panel-messages"></div>
+  <div id="chat-panel-input">
+    <input type="text" id="chat-input" placeholder="Tulis pesan..." />
+    <button id="chat-send-btn"><i class="fa-regular fa-paper-plane"></i></button>
+  </div>
+</div>
+
+<script>
+  // ============================================================
+  //  SUPABASE CREDENTIAL (sudah diisi)
+  // ============================================================
+  const SUPABASE_URL = 'https://rrccgcdghwpfzfyvfp.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyY29jY2dkZ3docGZmemZ5dmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MTA2NzEsImV4cCI6MjA5NzM4NjY3MX0.-yKZNdxuj3kumFKduXskk1mBG7UCR51Tb_NnWOjUAtY';
+
+  // Inisialisasi Supabase dengan pengecekan
+  let supabaseClient;
+  try {
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('✅ Supabase terinisialisasi');
+  } catch (e) {
+    console.error('❌ Gagal inisialisasi Supabase:', e);
+    alert('Gagal koneksi ke Supabase. Periksa URL dan Key.');
+  }
+
+  // ============================================================
+  //  STATE
+  // ============================================================
+  const ADMIN_PIN = '4321';
+  let isAdmin = false;
+  let dataJadwal = {};
+  const petugasList = ['Ajik Su', 'Wayan S', 'Mang Beni', 'Indra S', 'Kadek Widana'];
+  const today = new Date();
+
+  // ============================================================
+  //  HELPERS
+  // ============================================================
+  function pad(n) { return n.toString().padStart(2, '0'); }
+  function formatDate(d) { return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+  function formatTanggalLengkap(t) {
+    const d = new Date(t + 'T12:00:00');
+    const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    return `${hari[d.getDay()]}, ${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}`;
+  }
+
+  // ============================================================
+  //  CRUD SUPABASE (dengan error handling detail)
+  // ============================================================
+  async function loadJadwalFromSupabase() {
+    if (!supabaseClient) {
+      alert('Supabase tidak terhubung. Periksa koneksi.');
+      return;
+    }
+    try {
+      const { data, error } = await supabaseClient.from('jadwal').select('*');
+      if (error) {
+        console.error('❌ Error select jadwal:', error);
+        alert('Gagal ambil data: ' + error.message);
+        return;
+      }
+      dataJadwal = {};
+      data.forEach(row => {
+        dataJadwal[row.tanggal] = {
+          bungkulan: row.bungkulan || [],
+          komodo: row.komodo || []
+        };
+      });
+      renderPreview();
+      if (isAdmin) renderCalendar();
+    } catch (e) {
+      console.error('❌ Exception load jadwal:', e);
+      alert('Error: ' + e.message);
+    }
+  }
+
+  async function upsertJadwal(tanggal, bungkulan, komodo) {
+    if (!supabaseClient) {
+      alert('Supabase tidak terhubung.');
+      return;
+    }
+    try {
+      const { error } = await supabaseClient
+        .from('jadwal')
+        .upsert({ tanggal, bungkulan, komodo }, { onConflict: 'tanggal' });
+      if (error) {
+        console.error('❌ Error upsert:', error);
+        alert('Gagal simpan: ' + error.message);
+        return;
+      }
+      await loadJadwalFromSupabase();
+    } catch (e) {
+      console.error('❌ Exception upsert:', e);
+      alert('Error: ' + e.message);
+    }
+  }
+
+  async function deleteAllJadwal() {
+    if (!supabaseClient) {
+      alert('Supabase tidak terhubung.');
+      return;
+    }
+    try {
+      const { error } = await supabaseClient.from('jadwal').delete().neq('tanggal', '0000-00-00');
+      if (error) {
+        console.error('❌ Error delete:', error);
+        alert('Gagal reset: ' + error.message);
+        return;
+      }
+      dataJadwal = {};
+      renderPreview();
+      if (isAdmin) renderCalendar();
+    } catch (e) {
+      console.error('❌ Exception delete:', e);
+      alert('Error: ' + e.message);
+    }
+  }
+
+  // ============================================================
+  //  PREVIEW
+  // ============================================================
+  function renderPreview() {
+    const tbody = document.getElementById('preview-body');
+    tbody.innerHTML = '';
+    const entries = Object.entries(dataJadwal).sort((a,b) => a[0].localeCompare(b[0]));
+    if (entries.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="3" class="preview-empty">Belum ada jadwal yang diinput oleh admin.</td></tr>`;
+      return;
+    }
+    entries.forEach(([tgl, data]) => {
+      const bungkulan = data.bungkulan?.length ? data.bungkulan.map(n => '🪖 ' + n).join('<br>') : '—';
+      const komodo = data.komodo?.length ? data.komodo.map(n => '🪖 ' + n).join('<br>') : '—';
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${formatTanggalLengkap(tgl)}</td><td>${bungkulan}</td><td>${komodo}</td>`;
+      tbody.appendChild(row);
+    });
+  }
+
+  // ============================================================
+  //  ADMIN – KALENDER & MODAL
+  // ============================================================
+  function renderCalendar() {
+    const cal = document.getElementById('calendar');
+    if (!cal) return;
+    cal.innerHTML = '';
+    const y = today.getFullYear(), m = today.getMonth();
+    const days = new Date(y, m+1, 0).getDate();
+    const first = new Date(y, m, 1).getDay();
+    for (let i=0; i<first; i++) {
+      const empty = document.createElement('div');
+      empty.style.cssText = 'background:transparent;border:none;box-shadow:none;cursor:default;';
+      cal.appendChild(empty);
+    }
+    for (let d=1; d<=days; d++) {
+      const dateStr = `${y}-${pad(m+1)}-${pad(d)}`;
+      const el = document.createElement('div');
+      el.className = 'day';
+      if (dateStr === formatDate(today)) el.classList.add('today');
+      if (dataJadwal[dateStr] && 
+         ((dataJadwal[dateStr].bungkulan?.length || 0) + (dataJadwal[dateStr].komodo?.length || 0) > 0)) {
+        el.classList.add('has-data');
+      }
+      el.innerHTML = `<strong>${d}</strong>`;
+      if (dataJadwal[dateStr]) {
+        const count = (dataJadwal[dateStr].bungkulan?.length || 0) + (dataJadwal[dateStr].komodo?.length || 0);
+        if (count > 0) el.innerHTML += `<span style="font-size:10px;opacity:0.9;margin-top:2px;">${count} jaga</span>`;
+      }
+      el.onclick = () => openModal(dateStr);
+      cal.appendChild(el);
+    }
+  }
+
+  window.openModal = function(dateStr) {
+    if (!isAdmin) { alert('Anda belum login sebagai admin.'); return; }
+    const modal = document.getElementById('modal');
+    document.getElementById('modal-date').innerText = formatTanggalLengkap(dateStr);
+    if (!dataJadwal[dateStr]) dataJadwal[dateStr] = { bungkulan: [], komodo: [] };
+
+    const list = document.getElementById('checkbox-list');
+    list.innerHTML = '';
+    const lokasi = [
+      { key: 'bungkulan', title: '🪖 BUNGKULAN POST', class: 'blue' },
+      { key: 'komodo', title: '🪖 KOMODO WAREHOUSE', class: 'green' }
+    ];
+    lokasi.forEach(lok => {
+      const div = document.createElement('div');
+      div.className = `section ${lok.class}`;
+      const wrapper = document.createElement('div');
+      wrapper.className = 'section-title-wrapper';
+      wrapper.innerHTML = `<h4>${lok.title}</h4>`;
+      div.appendChild(wrapper);
+      petugasList.forEach(nama => {
+        const label = document.createElement('label');
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = dataJadwal[dateStr][lok.key]?.includes(nama) || false;
+        cb.onchange = async function() {
+          if (!isAdmin) return;
+          if (!dataJadwal[dateStr][lok.key]) dataJadwal[dateStr][lok.key] = [];
+          if (cb.checked) {
+            if (!dataJadwal[dateStr][lok.key].includes(nama)) dataJadwal[dateStr][lok.key].push(nama);
+          } else {
+            dataJadwal[dateStr][lok.key] = dataJadwal[dateStr][lok.key].filter(n => n !== nama);
+          }
+          await upsertJadwal(dateStr, dataJadwal[dateStr].bungkulan, dataJadwal[dateStr].komodo);
+          renderPreview();
+          renderCalendar();
+        };
+        label.appendChild(cb);
+        label.append(' ' + nama);
+        div.appendChild(label);
+      });
+      list.appendChild(div);
+    });
+    modal.style.display = 'flex';
+  };
+
+  window.closeModal = function() {
+    document.getElementById('modal').style.display = 'none';
+  };
+  window.onclick = function(e) {
+    const modal = document.getElementById('modal');
+    if (e.target === modal) closeModal();
+  };
+
+  // ============================================================
+  //  JAM & SALAM
+  // ============================================================
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('live-clock').innerText = 
+      `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  function ucapanSalam() {
+    const jam = new Date().getHours();
+    let salam = 'Selamat Datang';
+    if (jam < 11) salam = 'Selamat Pagi';
+    else if (jam < 15) salam = 'Selamat Siang';
+    else if (jam < 18) salam = 'Selamat Sore';
+    else salam = 'Selamat Malam';
+    document.getElementById('greeting').innerText = salam + '!';
+  }
+  ucapanSalam();
+
+  // ============================================================
+  //  SHARE, PNG, RESET
+  // ============================================================
+  window.shareToday = function() {
+    const ting = document.getElementById('tingtong');
+    if (ting) ting.play().catch(()=>{});
+    const dateStr = formatDate(today);
+    const data = dataJadwal[dateStr];
+    if (!data || (!data.bungkulan?.length && !data.komodo?.length)) {
+      alert('⚠️ Belum ada jadwal untuk hari ini.\nSilakan isi terlebih dahulu.');
+      return;
+    }
+    const teks = 
+      `🪖 *DUTY SCHEDULE*\n━━━━━━━━━━━━━━━━\n📅 ${formatTanggalLengkap(dateStr)}\n\n` +
+      `🔵 *BUNGKULAN POST*\n${(data.bungkulan?.length ? data.bungkulan.map((n,i)=>`${i+1}. 🪖 ${n}`).join('\n') : '   -')}` +
+      `\n\n🟢 *KOMODO WAREHOUSE*\n${(data.komodo?.length ? data.komodo.map((n,i)=>`${i+1}. 🪖 ${n}`).join('\n') : '   -')}` +
+      `\n\n━━━━━━━━━━━━━━━━\n#DutyToday`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(teks)}`, '_blank');
+  };
+
+  window.saveAsImage = function() {
+    const printArea = document.getElementById('print-area');
+    const table = document.getElementById('print-table');
+    table.innerHTML = '';
+    const headerRow = document.createElement('tr');
+    headerRow.style.backgroundColor = '#1e3a5f';
+    headerRow.style.color = 'white';
+    headerRow.innerHTML = `<td style="width:35%;">Tanggal</td><td style="width:32%;">Bungkulan Post</td><td style="width:33%;">Komodo Warehouse</td>`;
+    table.appendChild(headerRow);
+
+    const entries = Object.entries(dataJadwal).sort((a,b) => a[0].localeCompare(b[0]));
+    if (entries.length === 0) {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td colspan="3" style="text-align:center;padding:20px;">Belum ada data jadwal</td>`;
+      table.appendChild(row);
+    } else {
+      entries.forEach(([tgl, data]) => {
+        const bungkulan = data.bungkulan?.length ? data.bungkulan.map(n => '🪖 ' + n).join('<br>') : '—';
+        const komodo = data.komodo?.length ? data.komodo.map(n => '🪖 ' + n).join('<br>') : '—';
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${formatTanggalLengkap(tgl)}</td><td>${bungkulan}</td><td>${komodo}</td>`;
+        table.appendChild(row);
+      });
+    }
+
+    printArea.style.position = 'fixed';
+    printArea.style.left = '0';
+    printArea.style.top = '0';
+    printArea.style.zIndex = '9999';
+    printArea.style.background = 'white';
+
+    html2canvas(printArea, { scale: 2, backgroundColor: '#ffffff', logging: false, allowTaint: false, useCORS: true })
+      .then(canvas => {
+        printArea.style.position = 'absolute';
+        printArea.style.left = '-9999px';
+        const link = document.createElement('a');
+        link.download = `DutySchedule-${formatDate(today)}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      })
+      .catch(err => {
+        alert('Gagal export gambar: ' + err);
+        printArea.style.position = 'absolute';
+        printArea.style.left = '-9999px';
+      });
+  };
+
+  window.resetJadwal = function() {
+    if (!isAdmin) { alert('Anda belum login sebagai admin.'); return; }
+    if (confirm('⚠️ Yakin akan menghapus SEMUA jadwal? Data tidak bisa dikembalikan.')) {
+      deleteAllJadwal();
+    }
+  };
+
+  // ============================================================
+  //  ADMIN PIN LOGIN
+  // ============================================================
+  document.getElementById('pin-login-btn').addEventListener('click', function() {
+    const pin = document.getElementById('pin-input').value;
+    if (pin === ADMIN_PIN) {
+      isAdmin = true;
+      document.getElementById('admin-pin-screen').style.display = 'none';
+      document.getElementById('admin-content').style.display = 'block';
+      loadJadwalFromSupabase().then(() => {
+        renderCalendar();
+      });
+      document.getElementById('pin-error').style.display = 'none';
+    } else {
+      document.getElementById('pin-error').style.display = 'block';
+    }
+  });
+  document.getElementById('pin-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('pin-login-btn').click();
+  });
+
+  // ============================================================
+  //  TAB SWITCHING
+  // ============================================================
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+
+      const tab = this.dataset.tab;
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.getElementById(tab + '-tab').classList.add('active');
+
+      if (tab === 'preview') renderPreview();
+      if (tab === 'admin') {
+        if (!isAdmin) {
+          document.getElementById('admin-pin-screen').style.display = 'block';
+          document.getElementById('admin-content').style.display = 'none';
+        } else {
+          document.getElementById('admin-pin-screen').style.display = 'none';
+          document.getElementById('admin-content').style.display = 'block';
+          loadJadwalFromSupabase().then(() => renderCalendar());
+        }
+      }
+    });
+  });
+
+  // ============================================================
+  //  FLOATING CHAT WIDGET (dengan error handling)
+  // ============================================================
+  const fab = document.getElementById('chat-fab');
+  const panel = document.getElementById('chat-panel');
+  const closeBtn = document.getElementById('chat-close-btn');
+  const chatMessages = document.getElementById('chat-panel-messages');
+  const chatInput = document.getElementById('chat-input');
+  const chatSend = document.getElementById('chat-send-btn');
+
+  fab.addEventListener('click', () => {
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open')) {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+  });
+  closeBtn.addEventListener('click', () => panel.classList.remove('open'));
+
+  // Supabase realtime untuk chat
+  if (supabaseClient) {
+    supabaseClient
+      .channel('public:chat')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat' }, payload => {
+        const msg = payload.new;
+        appendChatMessage(msg.pesan, msg.created_at);
+      })
+      .subscribe();
+  } else {
+    console.warn('⚠️ Supabase tidak terhubung, chat tidak aktif.');
+  }
+
+  async function loadChatHistory() {
+    if (!supabaseClient) {
+      alert('Chat tidak aktif karena Supabase tidak terhubung.');
+      return;
+    }
+    try {
+      const { data, error } = await supabaseClient
+        .from('chat')
+        .select('*')
+        .order('created_at', { ascending: true })
+        .limit(50);
+      if (error) {
+        console.error('❌ Error load chat:', error);
+        alert('Gagal load chat: ' + error.message);
+        return;
+      }
+      chatMessages.innerHTML = '';
+      data.forEach(msg => appendChatMessage(msg.pesan, msg.created_at));
+    } catch (e) {
+      console.error('❌ Exception load chat:', e);
+      alert('Error: ' + e.message);
+    }
+  }
+
+  function appendChatMessage(pesan, created_at) {
+    const div = document.createElement('div');
+    div.className = 'msg';
+    const time = new Date(created_at);
+    const timeStr = time.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    div.innerHTML = `<span class="time">${timeStr}</span> ${pesan}`;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  async function sendChatMessage() {
+    const pesan = chatInput.value.trim();
+    if (!pesan) return;
+    if (!supabaseClient) {
+      alert('Chat tidak aktif karena Supabase tidak terhubung.');
+      return;
+    }
+    try {
+      const { error } = await supabaseClient.from('chat').insert({ pesan });
+      if (error) {
+        console.error('❌ Error send chat:', error);
+        alert('Gagal kirim pesan: ' + error.message);
+        return;
+      }
+      chatInput.value = '';
+    } catch (e) {
+      console.error('❌ Exception send chat:', e);
+      alert('Error: ' + e.message);
+    }
+  }
+
+  chatSend.addEventListener('click', sendChatMessage);
+  chatInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') sendChatMessage();
+  });
+
+  // ============================================================
+  //  INISIALISASI
+  // ============================================================
+  if (supabaseClient) {
+    loadJadwalFromSupabase().then(() => renderPreview());
+    loadChatHistory();
+  } else {
+    document.getElementById('preview-body').innerHTML = `<tr><td colspan="3" class="preview-empty">❌ Tidak bisa terhubung ke database. Periksa koneksi.</td></tr>`;
+  }
+
+  // Pastikan tab preview aktif
+  document.querySelector('.tab-btn[data-tab="preview"]').click();
+
+  console.log('✅ Aplikasi siap!');
+</script>
+</body>
+</html>
