@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#121212" />
   <title>Duty Schedule Pro</title>
 
+  <!-- PWA Icons -->
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
@@ -25,6 +26,7 @@
       --blue: #003a5c;
       --green: #004d00;
       --text: #f0f0f0;
+      --chat-bg: #0d0d0d;
     }
     body {
       margin: 0;
@@ -55,6 +57,7 @@
       justify-content: center;
       gap: 10px;
       margin: 15px 0 10px;
+      flex-wrap: wrap;
     }
     .tab-btn {
       padding: 10px 24px;
@@ -134,6 +137,7 @@
       border-bottom: 1px dashed #2f2f2f;
       padding-bottom: 10px;
     }
+
     .calendar {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
@@ -165,6 +169,7 @@
       display: flex;
       gap: 10px;
       margin: 18px 0 5px;
+      flex-wrap: wrap;
     }
     .btn {
       flex: 1;
@@ -181,10 +186,13 @@
       justify-content: center;
       gap: 6px;
       transition: 0.2s;
+      min-width: 80px;
     }
     .btn-share { background: #1f9e5a; }
     .btn-png { background: #3b5f7a; }
     .btn-reset { background: #7a3b3b; }
+    .btn-backup { background: #8e44ad; }
+    .btn-restore { background: #f39c12; }
 
     .modal {
       display: none;
@@ -312,29 +320,166 @@
 
     audio { display: none; }
 
-    #admin-pin-screen { text-align: center; padding: 30px; }
-    #admin-pin-screen i { font-size: 3rem; color: #888; }
-    #admin-pin-screen p { margin: 15px 0; }
-    #pin-input {
-      padding: 10px 20px;
-      border-radius: 30px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: white;
-      width: 200px;
-      text-align: center;
-      font-size: 1.2rem;
-    }
-    #pin-login-btn {
+    /* ===== CHAT FLOATING ===== */
+    #chatToggleBtn {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      z-index: 999;
       background: var(--accent);
       color: #121212;
-      padding: 10px 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      cursor: pointer;
       border: none;
-      border-radius: 30px;
+      transition: 0.2s;
+    }
+    #chatToggleBtn:hover { transform: scale(1.05); }
+    #chatBadge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #e74c3c;
+      color: white;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      font-size: 0.7rem;
       font-weight: bold;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #chatPanel {
+      position: fixed;
+      bottom: 95px;
+      right: 25px;
+      width: 350px;
+      max-width: 90vw;
+      max-height: 480px;
+      background: var(--card);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+      display: flex;
+      flex-direction: column;
+      z-index: 998;
+      overflow: hidden;
+      transition: 0.2s;
+    }
+    #chatPanel.hide { display: none; }
+
+    #chatHeader {
+      padding: 10px 16px;
+      background: var(--accent);
+      color: #121212;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #2a2a2a;
+    }
+    #chatHeader button {
+      background: transparent;
+      border: none;
+      color: #121212;
+      font-size: 1.2rem;
       cursor: pointer;
     }
-    #pin-error { color: #e74c3c; margin-top: 10px; display: none; }
+    #chatStatus {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: normal;
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .status-dot.online { background: #2ecc71; }
+    .status-dot.offline { background: #e74c3c; }
+    .status-text.online { color: #2ecc71; }
+    .status-text.offline { color: #e74c3c; }
+
+    #chatMessages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 14px;
+      background: var(--chat-bg);
+      max-height: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 200px;
+    }
+    .message {
+      padding: 6px 12px;
+      border-radius: 12px;
+      max-width: 85%;
+      word-wrap: break-word;
+      font-size: 0.95rem;
+      background: #2a2a2a;
+      align-self: flex-start;
+    }
+    .message-user {
+      background: var(--accent);
+      color: #121212;
+      align-self: flex-end;
+    }
+    .message-babinsa {
+      background: #1e3a5f;
+      color: white;
+    }
+    .message-time {
+      font-size: 0.6rem;
+      opacity: 0.6;
+      margin-top: 2px;
+      text-align: right;
+    }
+    .message-system {
+      text-align: center;
+      font-size: 0.7rem;
+      color: #8abf9a;
+      margin: 4px 0;
+    }
+
+    #chatInputRow {
+      display: flex;
+      gap: 8px;
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+      background: var(--card);
+    }
+    #chatInput {
+      flex: 1;
+      padding: 8px 14px;
+      border-radius: 30px;
+      border: 1px solid var(--border);
+      background: #121212;
+      color: white;
+      outline: none;
+    }
+    #chatInput::placeholder { color: #555; }
+    #chatSendBtn {
+      background: var(--accent);
+      border: none;
+      border-radius: 30px;
+      padding: 0 16px;
+      font-weight: 600;
+      color: #121212;
+      cursor: pointer;
+    }
+    #chatSendBtn:hover { opacity: 0.8; }
 
     .status-box {
       background: #1a1a2e;
@@ -348,22 +493,13 @@
     .status-box.error { border-color: #e74c3c; }
     .status-box.success { border-color: #2ecc71; }
 
-    #retry-btn {
-      background: var(--accent);
-      border: none;
-      color: #121212;
-      padding: 6px 18px;
-      border-radius: 30px;
-      font-weight: bold;
-      cursor: pointer;
-      margin: 10px 0;
-      display: inline-block;
-    }
-
     @media (max-width: 600px) {
       .tab-btn { padding: 8px 16px; font-size: 0.9rem; }
       #preview-table { font-size: 12px; }
       #preview-table th, #preview-table td { padding: 6px 4px; }
+      .button-group .btn { font-size: 13px; padding: 10px 0; }
+      #chatPanel { width: 90vw; right: 5vw; bottom: 85px; max-height: 400px; }
+      #chatToggleBtn { width: 54px; height: 54px; font-size: 24px; bottom: 20px; right: 20px; }
     }
   </style>
 </head>
@@ -374,48 +510,40 @@
 <!-- TAB BAR -->
 <div class="tab-bar">
   <button class="tab-btn active" data-tab="preview"><i class="fa-regular fa-eye"></i> Preview</button>
-  <button class="tab-btn" data-tab="admin"><i class="fa-solid fa-user-shield"></i> Admin</button>
+  <button class="tab-btn" data-tab="admin"><i class="fa-solid fa-pen-to-square"></i> Edit Jadwal</button>
 </div>
-
-<!-- TOMBOL COBA ULANG -->
-<button id="retry-btn"><i class="fa-solid fa-rotate"></i> Coba Ulang</button>
 
 <!-- TAB PREVIEW -->
 <div id="preview-tab" class="tab-content active">
   <div id="preview-table-wrap">
+    <div id="statusMessage" class="status-box" style="display:none;"></div>
     <table id="preview-table">
       <thead>
         <tr><th>Tanggal</th><th>Bungkulan Post</th><th>Komodo Warehouse</th></tr>
       </thead>
       <tbody id="preview-body"><tr><td colspan="3" class="preview-empty">Memuat data...</td></tr></tbody>
     </table>
-  </div>
-</div>
-
-<!-- TAB ADMIN -->
-<div id="admin-tab" class="tab-content">
-  <div id="admin-pin-screen">
-    <i class="fa-solid fa-lock"></i>
-    <p>Masukkan PIN untuk mengakses Admin</p>
-    <input type="password" id="pin-input" placeholder="PIN 4321" />
-    <br><br>
-    <button id="pin-login-btn">Masuk</button>
-    <p id="pin-error">PIN salah, coba lagi.</p>
-  </div>
-
-  <div id="admin-content" style="display:none;">
-    <div class="clock-container"><div id="live-clock">--:--:--</div></div>
-    <div id="greeting"></div>
-    <div class="calendar" id="calendar"></div>
-    <div class="button-group">
-      <button class="btn btn-share" onclick="shareToday()"><i class="fab fa-whatsapp"></i> Share</button>
-      <button class="btn btn-png" onclick="saveAsImage()"><i class="fas fa-image"></i> PNG</button>
-      <button class="btn btn-reset" onclick="resetJadwal()"><i class="fas fa-trash"></i> Reset</button>
+    <div style="margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <button class="btn btn-backup" onclick="backupData()"><i class="fa-solid fa-download"></i> Backup</button>
+      <button class="btn btn-restore" onclick="document.getElementById('restoreInput').click()"><i class="fa-solid fa-upload"></i> Restore</button>
+      <input type="file" id="restoreInput" accept=".json" style="display:none" onchange="restoreData(event)" />
     </div>
   </div>
 </div>
 
-<!-- MODAL -->
+<!-- TAB ADMIN (Edit Jadwal) -->
+<div id="admin-tab" class="tab-content">
+  <div class="clock-container"><div id="live-clock">--:--:--</div></div>
+  <div id="greeting"></div>
+  <div class="calendar" id="calendar"></div>
+  <div class="button-group">
+    <button class="btn btn-share" onclick="shareToday()"><i class="fab fa-whatsapp"></i> Share</button>
+    <button class="btn btn-png" onclick="saveAsImage()"><i class="fas fa-image"></i> PNG</button>
+    <button class="btn btn-reset" onclick="resetJadwal()"><i class="fas fa-trash"></i> Reset</button>
+  </div>
+</div>
+
+<!-- MODAL INPUT -->
 <div class="modal" id="modal">
   <div class="modal-content">
     <button class="close-btn" onclick="closeModal()">✕</button>
@@ -431,30 +559,53 @@
   <p style="text-align:right; margin-top:20px; font-style:italic;">generated by: Leong</p>
 </div>
 
+<!-- ===== FLOATING CHAT ===== -->
+<button id="chatToggleBtn">
+  <i class="fa-regular fa-comment-dots"></i>
+  <span id="chatBadge">0</span>
+</button>
+
+<div id="chatPanel" class="hide">
+  <div id="chatHeader">
+    <span><i class="fa-regular fa-comment-dots"></i> Live Chat</span>
+    <div id="chatStatus">
+      <span class="status-dot" id="statusDot"></span>
+      <span class="status-text" id="statusText">Online</span>
+      <span style="font-size:0.7rem;opacity:0.7;">| 👥 <span id="onlineCounter">0</span></span>
+    </div>
+    <button id="chatCloseBtn">&times;</button>
+  </div>
+  <div id="chatMessages"></div>
+  <div id="chatInputRow">
+    <input type="text" id="chatInput" placeholder="Tulis pesan..." />
+    <button id="chatSendBtn"><i class="fa-regular fa-paper-plane"></i></button>
+  </div>
+</div>
+
 <audio id="tingtong" preload="auto">
   <source src="https://notificationsounds.com/storage/sounds/file-sounds-1157-ting-tong.mp3" type="audio/mpeg" />
 </audio>
 
 <script>
   // ============================================================
-  // 🔐 KONFIGURASI SUPABASE – GANTI DENGAN MILIK ANDA!
+  //  1.  KONFIGURASI SUPABASE (JADWAL + CHAT)
   // ============================================================
-  const SUPABASE_URL = 'https://rrcoccgdgwhpffzfyvfp.supabase.co';  // Ganti
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyY29jY2dkZ3docGZmemZ5dmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MTA2NzEsImV4cCI6MjA5NzM4NjY3MX0.-yKZNdxuj3kumFKduXskk1mBG7UCR51Tb_NnWOjUAtY'; // Ganti
+  const SUPABASE_URL = 'https://rrccgcdghwpfzfyvfp.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyY29jY2dkZ3docGZmemZ5dmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MTA2NzEsImV4cCI6MjA5NzM4NjY3MX0.-yKZNdxuj3kumFKduXskk1mBG7UCR51Tb_NnWOjUAtY';
+
+  const DESA_NAME = 'DutyPro User'; // Identitas chat
 
   // ============================================================
-  // GLOBAL STATE
+  //  2.  STATE & DATA
   // ============================================================
   let supabaseClient = null;
   let isSupabaseConnected = false;
-  const ADMIN_PIN = '4321';
-  let isAdmin = false;
-  let dataJadwal = {};
+  let dataJadwal = {}; // { tanggal: { bungkulan: [], komodo: [] } }
   const petugasList = ['Ajik Su', 'Wayan S', 'Mang Beni', 'Indra S', 'Kadek Widana'];
   const today = new Date();
 
   // ============================================================
-  // HELPERS
+  //  3.  HELPERS
   // ============================================================
   function pad(n) { return n.toString().padStart(2, '0'); }
   function formatDate(d) { return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
@@ -464,9 +615,14 @@
     const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
     return `${hari[d.getDay()]}, ${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}`;
   }
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
 
   // ============================================================
-  // TEST KONEKSI & INISIALISASI
+  //  4.  SUPABASE CRUD
   // ============================================================
   async function testSupabaseConnection() {
     try {
@@ -475,22 +631,16 @@
       });
       if (res.ok) {
         isSupabaseConnected = true;
-        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         return true;
-      } else {
-        isSupabaseConnected = false;
-        return false;
       }
-    } catch (e) {
-      console.warn('❌ Gagal koneksi ke Supabase:', e.message);
-      isSupabaseConnected = false;
+      return false;
+    } catch(e) {
+      console.warn('Supabase connection failed:', e.message);
       return false;
     }
   }
 
-  // ============================================================
-  // CRUD JADWAL
-  // ============================================================
   async function loadJadwalFromSupabase() {
     if (!isSupabaseConnected || !supabaseClient) {
       showStatus('error', '⚠️ Tidak terhubung ke Supabase. Periksa URL dan key.');
@@ -511,8 +661,8 @@
         };
       });
       renderPreview();
-      if (isAdmin) renderCalendar();
-      showStatus('success', '✅ Terhubung ke Supabase! Data dimuat.');
+      renderCalendar();
+      showStatus('success', '✅ Data jadwal dimuat dari Supabase');
     } catch (e) {
       console.error('❌ Exception:', e);
       showStatus('error', '❌ Error: ' + e.message);
@@ -543,6 +693,7 @@
       alert('Tidak terhubung ke Supabase.');
       return;
     }
+    if (!confirm('⚠️ Yakin akan menghapus SEMUA jadwal? Data tidak bisa dikembalikan.')) return;
     try {
       const { error } = await supabaseClient.from('jadwal').delete().neq('tanggal', '0000-00-00');
       if (error) {
@@ -551,21 +702,22 @@
       }
       dataJadwal = {};
       renderPreview();
-      if (isAdmin) renderCalendar();
+      renderCalendar();
+      showStatus('success', '✅ Semua data berhasil dihapus');
     } catch (e) {
       alert('Error: ' + e.message);
     }
   }
 
   // ============================================================
-  // RENDER PREVIEW
+  //  5.  RENDER PREVIEW
   // ============================================================
   function renderPreview() {
     const tbody = document.getElementById('preview-body');
     tbody.innerHTML = '';
     const entries = Object.entries(dataJadwal).sort((a,b) => a[0].localeCompare(b[0]));
     if (entries.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="3" class="preview-empty">Belum ada jadwal yang diinput oleh admin.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="3" class="preview-empty">Belum ada jadwal yang diinput.</td></tr>`;
       return;
     }
     entries.forEach(([tgl, data]) => {
@@ -578,7 +730,7 @@
   }
 
   // ============================================================
-  // ADMIN – KALENDER & MODAL
+  //  6.  KALENDER & MODAL
   // ============================================================
   function renderCalendar() {
     const cal = document.getElementById('calendar');
@@ -612,7 +764,6 @@
   }
 
   window.openModal = function(dateStr) {
-    if (!isAdmin) { alert('Anda belum login sebagai admin.'); return; }
     const modal = document.getElementById('modal');
     document.getElementById('modal-date').innerText = formatTanggalLengkap(dateStr);
     if (!dataJadwal[dateStr]) dataJadwal[dateStr] = { bungkulan: [], komodo: [] };
@@ -636,7 +787,6 @@
         cb.type = 'checkbox';
         cb.checked = dataJadwal[dateStr][lok.key]?.includes(nama) || false;
         cb.onchange = async function() {
-          if (!isAdmin) return;
           if (!dataJadwal[dateStr][lok.key]) dataJadwal[dateStr][lok.key] = [];
           if (cb.checked) {
             if (!dataJadwal[dateStr][lok.key].includes(nama)) dataJadwal[dateStr][lok.key].push(nama);
@@ -665,7 +815,7 @@
   };
 
   // ============================================================
-  // JAM & SALAM
+  //  7.  JAM & SALAM
   // ============================================================
   function updateClock() {
     const now = new Date();
@@ -687,7 +837,7 @@
   ucapanSalam();
 
   // ============================================================
-  // SHARE, PNG, RESET
+  //  8.  SHARE, PNG, RESET
   // ============================================================
   window.shareToday = function() {
     const ting = document.getElementById('tingtong');
@@ -754,33 +904,61 @@
   };
 
   window.resetJadwal = function() {
-    if (!isAdmin) { alert('Anda belum login sebagai admin.'); return; }
-    if (confirm('⚠️ Yakin akan menghapus SEMUA jadwal?')) {
-      deleteAllJadwal();
-    }
+    deleteAllJadwal();
   };
 
   // ============================================================
-  // ADMIN PIN LOGIN
+  //  9.  BACKUP & RESTORE (ekspor/impor JSON)
   // ============================================================
-  document.getElementById('pin-login-btn').addEventListener('click', function() {
-    const pin = document.getElementById('pin-input').value;
-    if (pin === ADMIN_PIN) {
-      isAdmin = true;
-      document.getElementById('admin-pin-screen').style.display = 'none';
-      document.getElementById('admin-content').style.display = 'block';
-      loadJadwalFromSupabase().then(() => renderCalendar());
-      document.getElementById('pin-error').style.display = 'none';
-    } else {
-      document.getElementById('pin-error').style.display = 'block';
-    }
-  });
-  document.getElementById('pin-input').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') document.getElementById('pin-login-btn').click();
-  });
+  window.backupData = function() {
+    const dataStr = JSON.stringify(dataJadwal, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `jadwal_backup_${formatDate(new Date())}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  window.restoreData = function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      try {
+        const imported = JSON.parse(e.target.result);
+        if (typeof imported === 'object' && imported !== null) {
+          // Kirim semua data ke Supabase
+          let success = true;
+          for (const [tgl, data] of Object.entries(imported)) {
+            const { error } = await supabaseClient
+              .from('jadwal')
+              .upsert({ tanggal: tgl, bungkulan: data.bungkulan || [], komodo: data.komodo || [] }, { onConflict: 'tanggal' });
+            if (error) {
+              console.error('Restore error:', error);
+              success = false;
+            }
+          }
+          if (success) {
+            alert('✅ Data berhasil dipulihkan ke Supabase!');
+            await loadJadwalFromSupabase();
+          } else {
+            alert('❌ Ada error saat restore, cek console.');
+          }
+        } else {
+          alert('❌ Format file tidak valid.');
+        }
+      } catch (err) {
+        alert('❌ Gagal membaca file: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  };
 
   // ============================================================
-  // TAB SWITCHING
+  //  10. TAB SWITCHING
   // ============================================================
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function() {
@@ -792,58 +970,192 @@
       document.getElementById(tab + '-tab').classList.add('active');
 
       if (tab === 'preview') renderPreview();
-      if (tab === 'admin') {
-        if (!isAdmin) {
-          document.getElementById('admin-pin-screen').style.display = 'block';
-          document.getElementById('admin-content').style.display = 'none';
-        } else {
-          document.getElementById('admin-pin-screen').style.display = 'none';
-          document.getElementById('admin-content').style.display = 'block';
-          loadJadwalFromSupabase().then(() => renderCalendar());
-        }
-      }
+      if (tab === 'admin') renderCalendar();
     });
   });
 
   // ============================================================
-  // STATUS DISPLAY
+  //  11. STATUS DISPLAY
   // ============================================================
   function showStatus(type, message) {
     const container = document.getElementById('preview-table-wrap');
-    let statusBox = container.querySelector('.status-box');
-    if (!statusBox) {
-      statusBox = document.createElement('div');
-      statusBox.className = 'status-box';
-      container.prepend(statusBox);
-    }
+    const statusBox = container.querySelector('#statusMessage') || document.createElement('div');
+    statusBox.id = 'statusMessage';
     statusBox.className = `status-box ${type}`;
     statusBox.innerHTML = `<i class="fa-solid fa-${type === 'error' ? 'circle-exclamation' : 'circle-check'}"></i> ${message}`;
+    statusBox.style.display = 'block';
+    if (!container.querySelector('#statusMessage')) {
+      container.prepend(statusBox);
+    }
   }
 
   // ============================================================
-  // TOMBOL COBA ULANG
+  //  12. LIVE CHAT SUPABASE
   // ============================================================
-  const retryBtn = document.getElementById('retry-btn');
-  retryBtn.onclick = async function() {
-    showStatus('', '⏳ Mengecek koneksi...');
-    const ok = await testSupabaseConnection();
-    if (ok) {
-      await loadJadwalFromSupabase();
-    } else {
-      showStatus('error', '❌ Gagal terhubung. Periksa URL dan key.');
+  let chatChannel = null;
+  let chatCurrentUser = null;
+  let chatUnreadCount = 0;
+
+  async function initSupabaseChat() {
+    if (!isSupabaseConnected || !supabaseClient) {
+      console.warn('Chat: Supabase tidak terhubung');
+      return;
     }
-  };
+    try {
+      chatCurrentUser = {
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+        name: DESA_NAME
+      };
+
+      chatChannel = supabaseClient.channel('dukops-live', {
+        config: { presence: { key: chatCurrentUser.id } }
+      });
+
+      function updateOnlineCounter() {
+        const state = chatChannel.presenceState();
+        const users = new Set();
+        for (const [key, presences] of Object.entries(state)) {
+          for (const p of presences) {
+            if (p.user_id) users.add(p.user_id);
+            else users.add(key);
+          }
+        }
+        const counterSpan = document.getElementById('onlineCounter');
+        if (counterSpan) counterSpan.textContent = users.size;
+      }
+
+      chatChannel.on('presence', { event: 'sync' }, () => updateOnlineCounter());
+      chatChannel.on('presence', { event: 'join' }, ({ newPresences }) => {
+        updateOnlineCounter();
+        if (newPresences && newPresences[0] && newPresences[0].name !== chatCurrentUser.name) {
+          addChatMessageSystem(`${newPresences[0].name} bergabung ke chat`);
+        }
+      });
+      chatChannel.on('presence', { event: 'leave' }, ({ leftPresences }) => {
+        updateOnlineCounter();
+        if (leftPresences && leftPresences[0] && leftPresences[0].name !== chatCurrentUser.name) {
+          addChatMessageSystem(`${leftPresences[0].name} meninggalkan chat`);
+        }
+      });
+
+      chatChannel.on('broadcast', { event: 'message' }, ({ payload }) => {
+        addChatMessage(payload);
+      });
+
+      await chatChannel.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await chatChannel.track({
+            user_id: chatCurrentUser.id,
+            name: chatCurrentUser.name
+          });
+          console.log('Chat presence tracked');
+        }
+      });
+    } catch(e) {
+      console.warn('Chat init error:', e);
+    }
+  }
+
+  function addChatMessage(msg) {
+    const messagesDiv = document.getElementById('chatMessages');
+    const isOwn = (msg.senderId === chatCurrentUser?.id);
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isOwn ? 'message-user' : 'message-babinsa'}`;
+    const time = new Date(msg.timestamp).toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+    messageDiv.innerHTML = `
+      ${!isOwn ? `<div style="font-size:0.7rem;font-weight:bold;">${escapeHtml(msg.sender)}</div>` : ''}
+      <div>${escapeHtml(msg.text)}</div>
+      <div class="message-time">${time}</div>
+    `;
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+    if (!isOwn && document.getElementById('chatPanel').classList.contains('hide')) {
+      chatUnreadCount++;
+      const badge = document.getElementById('chatBadge');
+      badge.style.display = 'flex';
+      badge.innerText = chatUnreadCount > 9 ? '9+' : chatUnreadCount;
+      const ting = document.getElementById('tingtong');
+      if (ting) ting.play().catch(()=>{});
+    }
+  }
+
+  function addChatMessageSystem(text) {
+    const messagesDiv = document.getElementById('chatMessages');
+    const sysDiv = document.createElement('div');
+    sysDiv.className = 'message-system';
+    sysDiv.innerHTML = `<i class="fas fa-info-circle"></i> ${escapeHtml(text)}`;
+    messagesDiv.appendChild(sysDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  async function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text || !chatChannel) return;
+    const msg = {
+      id: Date.now(),
+      sender: chatCurrentUser.name,
+      senderId: chatCurrentUser.id,
+      text: text,
+      timestamp: new Date().toISOString()
+    };
+    await chatChannel.send({ type: 'broadcast', event: 'message', payload: msg });
+    addChatMessage(msg);
+    input.value = '';
+  }
 
   // ============================================================
-  // INISIALISASI
+  //  13. CHAT UI EVENTS
+  // ============================================================
+  document.getElementById('chatToggleBtn').addEventListener('click', () => {
+    const panel = document.getElementById('chatPanel');
+    panel.classList.toggle('hide');
+    if (!panel.classList.contains('hide')) {
+      chatUnreadCount = 0;
+      document.getElementById('chatBadge').style.display = 'none';
+      document.getElementById('chatInput').focus();
+    }
+  });
+  document.getElementById('chatCloseBtn').addEventListener('click', () => {
+    document.getElementById('chatPanel').classList.add('hide');
+  });
+  document.getElementById('chatSendBtn').addEventListener('click', sendChatMessage);
+  document.getElementById('chatInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendChatMessage();
+  });
+
+  // ============================================================
+  //  14. STATUS KONEKSI
+  // ============================================================
+  function updateConnectionStatus() {
+    const dot = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    if (navigator.onLine) {
+      dot.className = 'status-dot online';
+      text.className = 'status-text online';
+      text.innerHTML = '<i class="fas fa-wifi"></i> Online';
+    } else {
+      dot.className = 'status-dot offline';
+      text.className = 'status-text offline';
+      text.innerHTML = '<i class="fas fa-wifi-slash"></i> Offline';
+    }
+  }
+  window.addEventListener('online', updateConnectionStatus);
+  window.addEventListener('offline', updateConnectionStatus);
+  updateConnectionStatus();
+
+  // ============================================================
+  //  15. INISIALISASI
   // ============================================================
   async function initApp() {
     showStatus('', '⏳ Mengecek koneksi ke Supabase...');
     const ok = await testSupabaseConnection();
     if (ok) {
       await loadJadwalFromSupabase();
+      await initSupabaseChat();
     } else {
-      showStatus('error', '❌ Gagal terhubung. Klik "Coba Ulang" atau periksa URL dan key.');
+      showStatus('error', '❌ Gagal terhubung ke Supabase. Periksa URL dan key.');
     }
     document.querySelector('.tab-btn[data-tab="preview"]').click();
     console.log('✅ Aplikasi siap!');
