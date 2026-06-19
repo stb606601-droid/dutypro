@@ -6,7 +6,6 @@
   <meta name="theme-color" content="#121212" />
   <title>Duty Schedule Pro</title>
 
-  <!-- PWA Icons -->
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
@@ -17,6 +16,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+    /* ===== SAMA SEPERTI SEBELUMNYA (tidak diubah) ===== */
     * { box-sizing: border-box; }
     :root {
       --bg: #121212;
@@ -137,7 +137,6 @@
       border-bottom: 1px dashed #2f2f2f;
       padding-bottom: 10px;
     }
-
     .calendar {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
@@ -282,6 +281,9 @@
     }
     .close-btn:hover { background: #5a5a5a; }
 
+    /* PIN Screen – sementara disembunyikan (tanpa PIN) */
+    #admin-pin-screen { display: none; }
+
     #print-area {
       position: absolute;
       left: -9999px;
@@ -318,9 +320,7 @@
       border-color: #0f2a44;
     }
 
-    audio { display: none; }
-
-    /* ===== CHAT FLOATING ===== */
+    /* ===== CHAT FLOATING (sama) ===== */
     #chatToggleBtn {
       position: fixed;
       bottom: 25px;
@@ -481,6 +481,8 @@
     }
     #chatSendBtn:hover { opacity: 0.8; }
 
+    audio { display: none; }
+
     .status-box {
       background: #1a1a2e;
       border-left: 4px solid #f1c40f;
@@ -510,13 +512,12 @@
 <!-- TAB BAR -->
 <div class="tab-bar">
   <button class="tab-btn active" data-tab="preview"><i class="fa-regular fa-eye"></i> Preview</button>
-  <button class="tab-btn" data-tab="admin"><i class="fa-solid fa-pen-to-square"></i> Edit Jadwal</button>
+  <button class="tab-btn" data-tab="admin"><i class="fa-solid fa-user-shield"></i> Admin</button>
 </div>
 
 <!-- TAB PREVIEW -->
 <div id="preview-tab" class="tab-content active">
   <div id="preview-table-wrap">
-    <div id="statusMessage" class="status-box" style="display:none;"></div>
     <table id="preview-table">
       <thead>
         <tr><th>Tanggal</th><th>Bungkulan Post</th><th>Komodo Warehouse</th></tr>
@@ -525,21 +526,26 @@
     </table>
     <div style="margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap;">
       <button class="btn btn-backup" onclick="backupData()"><i class="fa-solid fa-download"></i> Backup</button>
-      <button class="btn btn-restore" onclick="document.getElementById('restoreInput').click()"><i class="fa-solid fa-upload"></i> Restore</button>
-      <input type="file" id="restoreInput" accept=".json" style="display:none" onchange="restoreData(event)" />
+      <button class="btn btn-restore" id="restoreBtn"><i class="fa-solid fa-upload"></i> Restore</button>
+      <input type="file" id="restoreInput" accept=".json" style="display:none" />
     </div>
   </div>
 </div>
 
-<!-- TAB ADMIN (Edit Jadwal) -->
+<!-- TAB ADMIN -->
 <div id="admin-tab" class="tab-content">
-  <div class="clock-container"><div id="live-clock">--:--:--</div></div>
-  <div id="greeting"></div>
-  <div class="calendar" id="calendar"></div>
-  <div class="button-group">
-    <button class="btn btn-share" onclick="shareToday()"><i class="fab fa-whatsapp"></i> Share</button>
-    <button class="btn btn-png" onclick="saveAsImage()"><i class="fas fa-image"></i> PNG</button>
-    <button class="btn btn-reset" onclick="resetJadwal()"><i class="fas fa-trash"></i> Reset</button>
+  <!-- PIN screen disembunyikan (tanpa PIN) -->
+  <div id="admin-pin-screen"></div>
+
+  <div id="admin-content">
+    <div class="clock-container"><div id="live-clock">--:--:--</div></div>
+    <div id="greeting"></div>
+    <div class="calendar" id="calendar"></div>
+    <div class="button-group">
+      <button class="btn btn-share" onclick="shareToday()"><i class="fab fa-whatsapp"></i> Share</button>
+      <button class="btn btn-png" onclick="saveAsImage()"><i class="fas fa-image"></i> PNG</button>
+      <button class="btn btn-reset" onclick="resetJadwal()"><i class="fas fa-trash"></i> Reset</button>
+    </div>
   </div>
 </div>
 
@@ -588,19 +594,17 @@
 
 <script>
   // ============================================================
-  //  1.  KONFIGURASI SUPABASE (JADWAL + CHAT)
+  //  1.  KONFIGURASI SUPABASE
   // ============================================================
-  const SUPABASE_URL = 'https://rrccgcdghwpfzfyvfp.supabase.co';
+  const SUPABASE_URL = 'https://rrccgcdghwpfzfyvfp.supabase.co'; // Ganti dengan URL Anda
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyY29jY2dkZ3docGZmemZ5dmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MTA2NzEsImV4cCI6MjA5NzM4NjY3MX0.-yKZNdxuj3kumFKduXskk1mBG7UCR51Tb_NnWOjUAtY';
-
-  const DESA_NAME = 'DutyPro User'; // Identitas chat
+  const DESA_NAME = 'DutyPro User';
 
   // ============================================================
-  //  2.  STATE & DATA
+  //  2.  STATE
   // ============================================================
   let supabaseClient = null;
-  let isSupabaseConnected = false;
-  let dataJadwal = {}; // { tanggal: { bungkulan: [], komodo: [] } }
+  let dataJadwal = {};
   const petugasList = ['Ajik Su', 'Wayan S', 'Mang Beni', 'Indra S', 'Kadek Widana'];
   const today = new Date();
 
@@ -622,35 +626,18 @@
   }
 
   // ============================================================
-  //  4.  SUPABASE CRUD
+  //  4.  CRUD SUPABASE (JADWAL SHARED)
   // ============================================================
-  async function testSupabaseConnection() {
-    try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/`, {
-        headers: { 'apikey': SUPABASE_ANON_KEY }
-      });
-      if (res.ok) {
-        isSupabaseConnected = true;
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        return true;
-      }
-      return false;
-    } catch(e) {
-      console.warn('Supabase connection failed:', e.message);
-      return false;
-    }
-  }
-
   async function loadJadwalFromSupabase() {
-    if (!isSupabaseConnected || !supabaseClient) {
-      showStatus('error', '⚠️ Tidak terhubung ke Supabase. Periksa URL dan key.');
+    if (!supabaseClient) {
+      console.warn('Supabase belum siap');
       return;
     }
     try {
       const { data, error } = await supabaseClient.from('jadwal').select('*');
       if (error) {
-        console.error('❌ Error select jadwal:', error);
-        showStatus('error', '❌ Gagal ambil data: ' + error.message);
+        console.error('Error load jadwal:', error);
+        showStatus('error', 'Gagal ambil data: ' + error.message);
         return;
       }
       dataJadwal = {};
@@ -662,16 +649,16 @@
       });
       renderPreview();
       renderCalendar();
-      showStatus('success', '✅ Data jadwal dimuat dari Supabase');
+      showStatus('success', 'Data dimuat dari Supabase');
     } catch (e) {
-      console.error('❌ Exception:', e);
-      showStatus('error', '❌ Error: ' + e.message);
+      console.error(e);
+      showStatus('error', 'Error: ' + e.message);
     }
   }
 
   async function upsertJadwal(tanggal, bungkulan, komodo) {
-    if (!isSupabaseConnected || !supabaseClient) {
-      alert('Tidak terhubung ke Supabase.');
+    if (!supabaseClient) {
+      alert('Supabase belum siap.');
       return;
     }
     try {
@@ -689,21 +676,18 @@
   }
 
   async function deleteAllJadwal() {
-    if (!isSupabaseConnected || !supabaseClient) {
-      alert('Tidak terhubung ke Supabase.');
+    if (!supabaseClient) {
+      alert('Supabase belum siap.');
       return;
     }
-    if (!confirm('⚠️ Yakin akan menghapus SEMUA jadwal? Data tidak bisa dikembalikan.')) return;
+    if (!confirm('⚠️ Yakin akan menghapus SEMUA jadwal?')) return;
     try {
       const { error } = await supabaseClient.from('jadwal').delete().neq('tanggal', '0000-00-00');
       if (error) {
         alert('Gagal reset: ' + error.message);
         return;
       }
-      dataJadwal = {};
-      renderPreview();
-      renderCalendar();
-      showStatus('success', '✅ Semua data berhasil dihapus');
+      await loadJadwalFromSupabase();
     } catch (e) {
       alert('Error: ' + e.message);
     }
@@ -717,7 +701,7 @@
     tbody.innerHTML = '';
     const entries = Object.entries(dataJadwal).sort((a,b) => a[0].localeCompare(b[0]));
     if (entries.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="3" class="preview-empty">Belum ada jadwal yang diinput.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="3" class="preview-empty">Belum ada jadwal.</td></tr>`;
       return;
     }
     entries.forEach(([tgl, data]) => {
@@ -730,7 +714,7 @@
   }
 
   // ============================================================
-  //  6.  KALENDER & MODAL
+  //  6.  ADMIN – KALENDER & MODAL
   // ============================================================
   function renderCalendar() {
     const cal = document.getElementById('calendar');
@@ -794,8 +778,7 @@
             dataJadwal[dateStr][lok.key] = dataJadwal[dateStr][lok.key].filter(n => n !== nama);
           }
           await upsertJadwal(dateStr, dataJadwal[dateStr].bungkulan, dataJadwal[dateStr].komodo);
-          renderPreview();
-          renderCalendar();
+          // loadJadwalFromSupabase akan dipanggil oleh upsertJadwal
         };
         label.appendChild(cb);
         label.append(' ' + nama);
@@ -908,7 +891,7 @@
   };
 
   // ============================================================
-  //  9.  BACKUP & RESTORE (ekspor/impor JSON)
+  //  9.  BACKUP & RESTORE (diperbaiki)
   // ============================================================
   window.backupData = function() {
     const dataStr = JSON.stringify(dataJadwal, null, 2);
@@ -921,41 +904,66 @@
     URL.revokeObjectURL(url);
   };
 
-  window.restoreData = function(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async function(e) {
-      try {
-        const imported = JSON.parse(e.target.result);
-        if (typeof imported === 'object' && imported !== null) {
-          // Kirim semua data ke Supabase
-          let success = true;
-          for (const [tgl, data] of Object.entries(imported)) {
-            const { error } = await supabaseClient
-              .from('jadwal')
-              .upsert({ tanggal: tgl, bungkulan: data.bungkulan || [], komodo: data.komodo || [] }, { onConflict: 'tanggal' });
-            if (error) {
-              console.error('Restore error:', error);
-              success = false;
-            }
-          }
-          if (success) {
-            alert('✅ Data berhasil dipulihkan ke Supabase!');
-            await loadJadwalFromSupabase();
+  // Fungsi restore dengan event listener manual
+  function setupRestore() {
+    const input = document.getElementById('restoreInput');
+    const btn = document.getElementById('restoreBtn');
+
+    btn.addEventListener('click', function() {
+      input.click();
+    });
+
+    input.addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (typeof imported === 'object' && imported !== null) {
+            // Konfirmasi sebelum restore
+            if (!confirm(`⚠️ Akan mengganti semua data dengan data dari file ${file.name}?`)) return;
+            // Upload ke Supabase
+            restoreToSupabase(imported);
           } else {
-            alert('❌ Ada error saat restore, cek console.');
+            alert('❌ Format file tidak valid.');
           }
-        } else {
-          alert('❌ Format file tidak valid.');
+        } catch (err) {
+          alert('❌ Gagal membaca file: ' + err.message);
         }
-      } catch (err) {
-        alert('❌ Gagal membaca file: ' + err.message);
+      };
+      reader.readAsText(file);
+      // Reset input agar bisa pilih file yang sama lagi
+      event.target.value = '';
+    });
+  }
+
+  async function restoreToSupabase(importedData) {
+    if (!supabaseClient) {
+      alert('Supabase belum siap.');
+      return;
+    }
+    try {
+      // Hapus semua data lama
+      const { error: delError } = await supabaseClient.from('jadwal').delete().neq('tanggal', '0000-00-00');
+      if (delError) throw delError;
+
+      // Insert data baru
+      const entries = Object.entries(importedData);
+      for (const [tanggal, data] of entries) {
+        const { error } = await supabaseClient
+          .from('jadwal')
+          .insert({ tanggal, bungkulan: data.bungkulan || [], komodo: data.komodo || [] });
+        if (error) throw error;
       }
-    };
-    reader.readAsText(file);
-    event.target.value = '';
-  };
+
+      alert('✅ Restore berhasil! Data dari file berhasil dipulihkan.');
+      await loadJadwalFromSupabase();
+    } catch (err) {
+      alert('❌ Gagal restore: ' + err.message);
+    }
+  }
 
   // ============================================================
   //  10. TAB SWITCHING
@@ -970,44 +978,25 @@
       document.getElementById(tab + '-tab').classList.add('active');
 
       if (tab === 'preview') renderPreview();
-      if (tab === 'admin') renderCalendar();
     });
   });
 
   // ============================================================
-  //  11. STATUS DISPLAY
-  // ============================================================
-  function showStatus(type, message) {
-    const container = document.getElementById('preview-table-wrap');
-    const statusBox = container.querySelector('#statusMessage') || document.createElement('div');
-    statusBox.id = 'statusMessage';
-    statusBox.className = `status-box ${type}`;
-    statusBox.innerHTML = `<i class="fa-solid fa-${type === 'error' ? 'circle-exclamation' : 'circle-check'}"></i> ${message}`;
-    statusBox.style.display = 'block';
-    if (!container.querySelector('#statusMessage')) {
-      container.prepend(statusBox);
-    }
-  }
-
-  // ============================================================
-  //  12. LIVE CHAT SUPABASE
+  //  11. LIVE CHAT SUPABASE
   // ============================================================
   let chatChannel = null;
   let chatCurrentUser = null;
   let chatUnreadCount = 0;
 
   async function initSupabaseChat() {
-    if (!isSupabaseConnected || !supabaseClient) {
-      console.warn('Chat: Supabase tidak terhubung');
-      return;
-    }
     try {
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       chatCurrentUser = {
         id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
         name: DESA_NAME
       };
 
-      chatChannel = supabaseClient.channel('dukops-live', {
+      chatChannel = client.channel('dukops-live', {
         config: { presence: { key: chatCurrentUser.id } }
       });
 
@@ -1020,11 +1009,10 @@
             else users.add(key);
           }
         }
-        const counterSpan = document.getElementById('onlineCounter');
-        if (counterSpan) counterSpan.textContent = users.size;
+        document.getElementById('onlineCounter').textContent = users.size;
       }
 
-      chatChannel.on('presence', { event: 'sync' }, () => updateOnlineCounter());
+      chatChannel.on('presence', { event: 'sync' }, updateOnlineCounter);
       chatChannel.on('presence', { event: 'join' }, ({ newPresences }) => {
         updateOnlineCounter();
         if (newPresences && newPresences[0] && newPresences[0].name !== chatCurrentUser.name) {
@@ -1051,14 +1039,14 @@
           console.log('Chat presence tracked');
         }
       });
-    } catch(e) {
-      console.warn('Chat init error:', e);
+    } catch (err) {
+      console.error('Chat init error:', err);
     }
   }
 
   function addChatMessage(msg) {
     const messagesDiv = document.getElementById('chatMessages');
-    const isOwn = (msg.senderId === chatCurrentUser?.id);
+    const isOwn = (msg.senderId === chatCurrentUser.id);
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${isOwn ? 'message-user' : 'message-babinsa'}`;
     const time = new Date(msg.timestamp).toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
@@ -1106,39 +1094,43 @@
   }
 
   // ============================================================
-  //  13. CHAT UI EVENTS
+  //  12. CHAT UI EVENTS
   // ============================================================
-  document.getElementById('chatToggleBtn').addEventListener('click', () => {
-    const panel = document.getElementById('chatPanel');
-    panel.classList.toggle('hide');
-    if (!panel.classList.contains('hide')) {
+  const chatToggle = document.getElementById('chatToggleBtn');
+  const chatPanel = document.getElementById('chatPanel');
+  const chatClose = document.getElementById('chatCloseBtn');
+  const chatSend = document.getElementById('chatSendBtn');
+  const chatInputField = document.getElementById('chatInput');
+  const chatBadge = document.getElementById('chatBadge');
+
+  chatToggle.addEventListener('click', () => {
+    chatPanel.classList.toggle('hide');
+    if (!chatPanel.classList.contains('hide')) {
       chatUnreadCount = 0;
-      document.getElementById('chatBadge').style.display = 'none';
-      document.getElementById('chatInput').focus();
+      chatBadge.style.display = 'none';
+      chatInputField.focus();
     }
   });
-  document.getElementById('chatCloseBtn').addEventListener('click', () => {
-    document.getElementById('chatPanel').classList.add('hide');
-  });
-  document.getElementById('chatSendBtn').addEventListener('click', sendChatMessage);
-  document.getElementById('chatInput').addEventListener('keypress', (e) => {
+  chatClose.addEventListener('click', () => chatPanel.classList.add('hide'));
+  chatSend.addEventListener('click', sendChatMessage);
+  chatInputField.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendChatMessage();
   });
 
   // ============================================================
-  //  14. STATUS KONEKSI
+  //  13. STATUS KONEKSI
   // ============================================================
   function updateConnectionStatus() {
-    const dot = document.getElementById('statusDot');
-    const text = document.getElementById('statusText');
+    const statusDot = document.getElementById('statusDot');
+    const statusTextSpan = document.getElementById('statusText');
     if (navigator.onLine) {
-      dot.className = 'status-dot online';
-      text.className = 'status-text online';
-      text.innerHTML = '<i class="fas fa-wifi"></i> Online';
+      statusDot.className = 'status-dot online';
+      statusTextSpan.className = 'status-text online';
+      statusTextSpan.innerHTML = '<i class="fas fa-wifi"></i> Online';
     } else {
-      dot.className = 'status-dot offline';
-      text.className = 'status-text offline';
-      text.innerHTML = '<i class="fas fa-wifi-slash"></i> Offline';
+      statusDot.className = 'status-dot offline';
+      statusTextSpan.className = 'status-text offline';
+      statusTextSpan.innerHTML = '<i class="fas fa-wifi-slash"></i> Offline';
     }
   }
   window.addEventListener('online', updateConnectionStatus);
@@ -1146,19 +1138,43 @@
   updateConnectionStatus();
 
   // ============================================================
+  //  14. STATUS DISPLAY
+  // ============================================================
+  function showStatus(type, message) {
+    const container = document.getElementById('preview-table-wrap');
+    let statusBox = container.querySelector('.status-box');
+    if (!statusBox) {
+      statusBox = document.createElement('div');
+      statusBox.className = 'status-box';
+      container.prepend(statusBox);
+    }
+    statusBox.className = `status-box ${type}`;
+    statusBox.innerHTML = `<i class="fa-solid fa-${type === 'error' ? 'circle-exclamation' : 'circle-check'}"></i> ${message}`;
+  }
+
+  // ============================================================
   //  15. INISIALISASI
   // ============================================================
   async function initApp() {
-    showStatus('', '⏳ Mengecek koneksi ke Supabase...');
-    const ok = await testSupabaseConnection();
-    if (ok) {
-      await loadJadwalFromSupabase();
-      await initSupabaseChat();
-    } else {
-      showStatus('error', '❌ Gagal terhubung ke Supabase. Periksa URL dan key.');
-    }
+    // Inisialisasi Supabase client
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('Supabase client ready');
+
+    // Load data jadwal dari Supabase
+    await loadJadwalFromSupabase();
+
+    // Setup restore (event listener manual)
+    setupRestore();
+
+    // Aktifkan tab preview
     document.querySelector('.tab-btn[data-tab="preview"]').click();
-    console.log('✅ Aplikasi siap!');
+
+    // Inisialisasi chat jika online
+    if (navigator.onLine) {
+      await initSupabaseChat().catch(err => console.warn('Chat init error:', err));
+    }
+
+    console.log('✅ Aplikasi siap (Supabase shared + restore fixed)');
   }
 
   initApp();
