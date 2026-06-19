@@ -17,6 +17,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+    /* ========== CSS (sama seperti sebelumnya) ========== */
     * { box-sizing: border-box; }
     :root {
       --bg: #121212;
@@ -556,10 +557,10 @@
 
 <script>
   // ============================================================
-  //  🔐 KONFIGURASI SUPABASE (sesuaikan dengan milik Anda)
+  //  🔐 KONFIGURASI SUPABASE (ganti dengan milik Anda)
   // ============================================================
-  const SUPABASE_URL = 'https://rrccgcdghwpfzfyvfp.supabase.co';  // Ganti jika berbeda
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyY29jY2dkZ3docGZmemZ5dmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MTA2NzEsImV4cCI6MjA5NzM4NjY3MX0.-yKZNdxuj3kumFKduXskk1mBG7UCR51Tb_NnWOjUAtY'; // Ganti jika berbeda
+  const SUPABASE_URL = 'https://rrccgcdghwpfzfyvfp.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyY29jY2dkZ3docGZmemZ5dmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MTA2NzEsImV4cCI6MjA5NzM4NjY3MX0.-yKZNdxuj3kumFKduXskk1mBG7UCR51Tb_NnWOjUAtY';
 
   // ============================================================
   //  GLOBAL STATE
@@ -942,7 +943,6 @@
   });
   closeBtn.addEventListener('click', () => panel.classList.remove('open'));
 
-  // Inisialisasi chat jika terhubung
   let chatChannel = null;
   function initChat() {
     if (chatChannel) {
