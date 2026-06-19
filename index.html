@@ -7,15 +7,45 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>Duty Schedule Pro</title>
 
+  <!-- ===== PWA ===== -->
   <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪖</text></svg>" />
   <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪖</text></svg>" />
   <link rel="manifest" href="manifest.json" />
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- ===== CSS FRAMEWORK ===== -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- ===== ICONS ===== -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" />
+
+  <!-- ===== ANIMASI ===== -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
+
+  <!-- ===== GRAFIK ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- ===== PETA ===== -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- ===== POPUP MODERN ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- ===== SUPABASE ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- ===== HTML2CANVAS (PNG) & HTML2PDF ===== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- ===== AOS ===== -->
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
 
   <style>
-    /* ===== CSS (sama seperti sebelumnya, tidak diubah) ===== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #121212;
@@ -25,17 +55,19 @@
       --blue: #003a5c;
       --green: #004d00;
       --text: #f0f0f0;
-      --chat-bg: #0d0d0d;
+      --red: #e74c3c;
+      --yellow: #b8860b;
+      --yellow-light: #d4a017;
     }
     body {
       font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       padding: 15px 12px;
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
       min-height: 100vh;
-      padding-bottom: 80px;
+      padding-bottom: 30px;
       display: flex;
       flex-direction: column;
       position: relative;
@@ -55,6 +87,7 @@
       margin: 0;
     }
     h1 i { font-size: 2rem; color: var(--accent); }
+
     #signal-indicator {
       display: flex;
       align-items: flex-end;
@@ -64,23 +97,15 @@
       background: rgba(0,0,0,0.3);
       border-radius: 4px;
     }
-    .signal-bar {
-      width: 4px;
-      background: #555;
-      border-radius: 1px;
-      transition: background 0.3s;
-    }
+    .signal-bar { width: 4px; background: #555; border-radius: 1px; transition: background 0.3s; }
     .signal-bar:nth-child(1) { height: 6px; }
     .signal-bar:nth-child(2) { height: 10px; }
     .signal-bar:nth-child(3) { height: 16px; }
     .signal-bar:nth-child(4) { height: 22px; }
     #signal-indicator.online .signal-bar { background: #2ecc71; }
     #signal-indicator.offline .signal-bar { background: #e74c3c; }
-    #signal-text {
-      font-size: 0.7rem;
-      margin-left: 4px;
-      color: #888;
-    }
+    #signal-text { font-size: 0.7rem; margin-left: 4px; color: #888; }
+
     .tab-bar {
       display: flex;
       justify-content: center;
@@ -102,18 +127,13 @@
       min-width: 100px;
       text-align: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      transition: 0.3s;
     }
-    .tab-btn.active {
-      background: var(--accent);
-      color: #121212;
-      border-color: var(--accent);
-    }
-    .tab-content {
-      display: none;
-      margin-top: 10px;
-      flex: 1;
-    }
+    .tab-btn.active { background: var(--accent); color: #121212; border-color: var(--accent); }
+    .tab-btn:hover { opacity: 0.8; transform: scale(1.02); }
+    .tab-content { display: none; margin-top: 10px; flex: 1; animation: fadeIn 0.3s ease; }
     .tab-content.active { display: block; }
+
     #preview-table-wrap {
       background: var(--card);
       border-radius: 16px;
@@ -121,250 +141,165 @@
       border: 1px solid var(--border);
       overflow-x: auto;
     }
-    #preview-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
+    #preview-table { width: 100%; border-collapse: collapse; font-size: 14px; }
     #preview-table th {
-      background: #1e3a5f;
-      color: white;
-      padding: 10px 6px;
-      border: 1px solid #0f2a44;
-      text-align: center;
+      background: #1e3a5f; color: white; padding: 10px 6px;
+      border: 1px solid #0f2a44; text-align: center;
     }
-    #preview-table td {
-      border: 1px solid #333;
-      padding: 8px 6px;
-      vertical-align: top;
-    }
+    #preview-table td { border: 1px solid #333; padding: 8px 6px; vertical-align: top; }
     #preview-table tr:nth-child(even) { background: #1a1a1a; }
     .preview-empty { text-align: center; padding: 30px; color: #888; }
-    .button-group {
-      display: flex;
-      gap: 10px;
-      margin: 18px 0 5px;
-      flex-wrap: wrap;
-    }
+
+    .button-group { display: flex; gap: 10px; margin: 18px 0 5px; flex-wrap: wrap; }
     .btn {
-      flex: 1;
-      border: none;
-      padding: 14px 0;
-      border-radius: 40px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      color: white;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      min-width: 80px;
-      transition: 0.2s;
+      flex: 1; border: none; padding: 14px 0; border-radius: 40px; font-size: 15px;
+      font-weight: 600; cursor: pointer; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      min-width: 80px; transition: 0.2s;
     }
+    .btn:hover { transform: scale(1.02); opacity: 0.9; }
     .btn-share { background: #1f9e5a; }
-    .btn-png { background: #3b5f7a; }
-    .btn-backup { background: #8e44ad; }
-    .btn-restore { background: #f39c12; }
+    .btn-pdf { background: #e74c3c; }
+    .btn-notif { background: #1da1f2; }
     .btn-save-modal { background: var(--accent); color: #121212; padding: 10px 20px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; }
+
+    .dropdown { position: relative; display: inline-block; flex: 1; min-width: 80px; }
+    .dropdown .btn { width: 100%; border-radius: 40px; }
+    .dropdown-content {
+      display: none; position: absolute; top: 100%; left: 0; right: 0;
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5); z-index: 100; overflow: hidden; margin-top: 4px;
+    }
+    .dropdown-content.show { display: block; }
+    .dropdown-content button {
+      width: 100%; border: none; background: transparent; color: var(--text);
+      padding: 12px 16px; text-align: left; cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; gap: 10px; transition: 0.2s;
+    }
+    .dropdown-content button:hover { background: rgba(255,255,255,0.1); }
+    .dropdown-content button i { width: 20px; text-align: center; }
+
     #admin-pin-screen { display: none; }
     #admin-content {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 15px 10px;
+      background: var(--card); border-radius: 16px; padding: 15px 10px;
       border: 1px solid var(--border);
     }
     #live-clock {
-      text-align: center;
-      font-size: 2rem;
-      font-weight: 600;
-      margin: 5px 0 10px;
-      color: var(--accent);
-      background: var(--bg);
-      padding: 8px 15px;
-      border-radius: 50px;
-      display: inline-block;
-      width: auto;
-      margin: 0 auto 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      letter-spacing: 2px;
-      border: 1px solid var(--border);
+      text-align: center; font-size: 2rem; font-weight: 600; margin: 5px 0 10px;
+      color: var(--accent); background: var(--bg); padding: 8px 15px;
+      border-radius: 50px; display: inline-block; width: auto; margin: 0 auto 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3); letter-spacing: 2px; border: 1px solid var(--border);
     }
     .clock-container { text-align: center; }
     #greeting {
-      text-align: center;
-      margin: 0 0 10px;
-      color: #b0b0b0;
-      font-size: 1.1rem;
-      border-bottom: 1px dashed #2f2f2f;
-      padding-bottom: 10px;
+      text-align: center; margin: 0 0 10px; color: #b0b0b0; font-size: 1.1rem;
+      border-bottom: 1px dashed #2f2f2f; padding-bottom: 10px;
     }
+
     .calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 5px;
-      background: transparent;
-      margin: 10px 0;
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;
+      background: transparent; margin: 10px 0;
     }
+    .calendar-header {
+      text-align: center; font-size: 0.7rem; font-weight: 600; color: #888;
+      padding: 4px 0; border-bottom: 1px solid var(--border);
+    }
+    .calendar-header.minggu { color: var(--red); }
     .day {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 3px 5px;
-      min-height: 70px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: 0.1s;
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 10px 3px 5px; min-height: 70px; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; transition: 0.1s;
       box-shadow: 0 1px 3px rgba(0,0,0,0.5);
     }
     .day strong { font-size: 1.2rem; font-weight: 400; }
-    .day.today { background: var(--green); border-color: #00a86b; }
-    .day.has-data { background: var(--blue); }
-    .day.has-data.today { background: linear-gradient(145deg, #004d00, #003366); }
+    .day.minggu strong { color: var(--red) !important; }
+    .day.today { background: var(--green) !important; border-color: #00a86b !important; }
+    .day.today strong { color: white !important; }
+    .day.has-data { background: var(--yellow) !important; border-color: var(--yellow-light) !important; }
+    .day.has-data strong { color: white !important; }
+    .day.has-data.today { background: linear-gradient(145deg, var(--yellow), var(--green)) !important; }
     .day:active { transform: scale(0.96); }
+
     .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(10,10,10,0.8);
-      backdrop-filter: blur(4px);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      padding: 20px;
+      display: none; position: fixed; inset: 0; background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(6px); justify-content: center; align-items: center;
+      z-index: 1000; padding: 16px;
     }
     .modal-content {
-      background: var(--card);
-      padding: 20px 16px;
-      width: 100%;
-      max-width: 380px;
-      border-radius: 28px;
-      border: 1px solid #3a3a3a;
-      box-shadow: 0 20px 30px #00000055;
-      max-height: 85vh;
-      overflow-y: auto;
+      background: var(--card); padding: 20px 18px; width: 100%; max-width: 500px;
+      border-radius: 28px; border: 1px solid #3a3a3a; box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+      max-height: 90vh; overflow-y: auto;
     }
     .modal-content h3 {
-      margin-top: 0;
-      margin-bottom: 18px;
-      font-weight: 400;
-      border-bottom: 3px solid var(--accent);
-      padding-bottom: 8px;
-      display: inline-block;
+      margin-top: 0; margin-bottom: 16px; font-weight: 500;
+      border-bottom: 3px solid var(--accent); padding-bottom: 10px;
+      display: block; font-size: 1.1rem; text-align: center;
     }
-    .section {
-      margin-bottom: 18px;
-      padding: 14px 12px;
-      border-radius: 18px;
-      background: #1b2b36;
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .modal-col {
+      background: #1a1a2e; border-radius: 16px; padding: 12px 14px; border: 1px solid var(--border);
     }
-    .blue { background: #0a2c3d; border-left: 4px solid #2a7faa; }
-    .green { background: #0a3d2a; border-left: 4px solid #2ecc71; }
-    .section h4 {
-      margin: 0 0 12px 0;
-      font-size: 15px;
-      letter-spacing: 0.5px;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 5px;
+    .modal-col.blue { border-left: 4px solid #2a7faa; }
+    .modal-col.green { border-left: 4px solid #2ecc71; }
+    .modal-col h4 {
+      font-size: 0.8rem; letter-spacing: 0.5px; color: #aaa; margin: 0 0 10px 0;
+      text-align: center; border-bottom: 1px solid #333; padding-bottom: 6px;
     }
-    .section-title-wrapper {
-      display: inline-block;
-      border-bottom: 2px solid rgba(255,255,255,0.3);
-      padding-bottom: 4px;
-      margin-bottom: 10px;
+    .modal-col label {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
+      font-size: 14px; cursor: pointer; padding: 3px 0; color: #ddd;
     }
-    .section-title-wrapper h4 { margin: 0; padding: 0; border: none; }
-    label {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 9px;
-      font-size: 15px;
-      cursor: pointer;
-      padding: 4px 0;
-    }
-    input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--accent);
+    .modal-col label:hover { color: white; }
+    .modal-col input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--accent); flex-shrink: 0; }
+    .modal-footer {
+      display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;
+      padding-top: 12px; border-top: 1px solid var(--border);
     }
     .close-btn {
-      float: right;
-      background: #3c3c3c;
-      border: none;
-      border-radius: 30px;
-      width: 32px;
-      height: 32px;
-      font-size: 18px;
-      color: white;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: -8px;
-      margin-right: -6px;
+      float: right; background: #3c3c3c; border: none; border-radius: 30px;
+      width: 30px; height: 30px; font-size: 16px; color: white; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: -6px; margin-right: -4px; transition: 0.1s;
     }
     .close-btn:hover { background: #5a5a5a; }
-    .modal-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 16px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-    }
+
     #print-area {
-      position: absolute;
-      left: -9999px;
-      top: 0;
-      width: 1000px;
-      background: white;
-      color: black;
-      padding: 30px 25px;
-      font-family: Arial, sans-serif;
+      position: absolute; left: -9999px; top: 0; width: 1000px;
+      background: white; color: black; padding: 30px 25px; font-family: Arial, sans-serif;
     }
-    #print-area h2 {
-      color: #1e3a5f;
-      font-size: 2rem;
-      border-bottom: 2px solid #ccc;
-      padding-bottom: 10px;
-    }
-    #print-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    #print-table td {
-      border: 1px solid #333;
-      padding: 12px 8px;
-      vertical-align: top;
-    }
-    #print-table tr:first-child td {
-      background: #1e3a5f;
-      color: white;
-      font-weight: bold;
-      text-align: center;
-      border-color: #0f2a44;
-    }
+    #print-area h2 { color: #1e3a5f; font-size: 2rem; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
+    #print-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    #print-table td { border: 1px solid #333; padding: 12px 8px; vertical-align: top; }
+    #print-table tr:first-child td { background: #1e3a5f; color: white; font-weight: bold; text-align: center; border-color: #0f2a44; }
+
     .status-box {
-      background: #1a1a2e;
-      border-left: 4px solid #f1c40f;
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      font-size: 14px;
+      background: #1a1a2e; border-left: 4px solid #f1c40f; padding: 12px 16px;
+      border-radius: 8px; margin-bottom: 16px; font-size: 14px;
     }
     .status-box i { margin-right: 8px; }
     .status-box.error { border-color: #e74c3c; }
     .status-box.success { border-color: #2ecc71; }
     .status-box.info { border-color: #3498db; }
+
+    #chart-container {
+      background: var(--card); border-radius: 16px; padding: 20px;
+      border: 1px solid var(--border); margin: 15px 0;
+    }
+    #chart-container h4 { color: #aaa; font-size: 0.9rem; margin-bottom: 10px; text-align: center; }
+
+    #map-container {
+      background: var(--card); border-radius: 16px; padding: 15px;
+      border: 1px solid var(--border); margin: 15px 0; height: 250px; overflow: hidden;
+    }
+    #map { height: 100%; width: 100%; border-radius: 8px; }
+    .leaflet-container { background: #1a1a2e; }
+
     .hide { display: none !important; }
     audio { display: none; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.4s ease; }
+
     @media (max-width: 600px) {
       body { padding: 10px 8px; }
       .app-header { flex-wrap: wrap; gap: 6px; }
@@ -382,163 +317,11 @@
       .signal-bar:nth-child(2) { height: 8px; }
       .signal-bar:nth-child(3) { height: 13px; }
       .signal-bar:nth-child(4) { height: 18px; }
+      .modal-grid { grid-template-columns: 1fr; gap: 10px; }
+      .modal-content { padding: 16px 12px; max-width: 100%; }
+      .modal-col { padding: 10px 12px; }
+      .modal-col label { font-size: 13px; }
     }
-    /* CHAT (opsional) */
-    #chatToggleBtn {
-      position: fixed;
-      bottom: 25px;
-      right: 25px;
-      z-index: 999;
-      background: var(--accent);
-      color: #121212;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-      cursor: pointer;
-      border: none;
-      transition: 0.2s;
-    }
-    #chatToggleBtn:hover { transform: scale(1.05); }
-    #chatBadge {
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      background: #e74c3c;
-      color: white;
-      border-radius: 50%;
-      width: 22px;
-      height: 22px;
-      font-size: 0.7rem;
-      font-weight: bold;
-      display: none;
-      align-items: center;
-      justify-content: center;
-    }
-    #chatPanel {
-      position: fixed;
-      bottom: 95px;
-      right: 25px;
-      width: 350px;
-      max-width: 90vw;
-      max-height: 480px;
-      background: var(--card);
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
-      display: none;
-      flex-direction: column;
-      z-index: 998;
-      overflow: hidden;
-    }
-    #chatPanel.open { display: flex; }
-    #chatHeader {
-      padding: 10px 16px;
-      background: var(--accent);
-      color: #121212;
-      font-weight: 600;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #2a2a2a;
-    }
-    #chatHeader button {
-      background: transparent;
-      border: none;
-      color: #121212;
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
-    #chatStatus {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.75rem;
-      font-weight: normal;
-    }
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-    .status-dot.online { background: #2ecc71; }
-    .status-dot.offline { background: #e74c3c; }
-    .status-text.online { color: #2ecc71; }
-    .status-text.offline { color: #e74c3c; }
-    #chatMessages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px 14px;
-      background: var(--chat-bg);
-      max-height: 320px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-height: 200px;
-    }
-    .message {
-      padding: 6px 12px;
-      border-radius: 12px;
-      max-width: 85%;
-      word-wrap: break-word;
-      font-size: 0.95rem;
-      background: #2a2a2a;
-      align-self: flex-start;
-    }
-    .message-user {
-      background: var(--accent);
-      color: #121212;
-      align-self: flex-end;
-    }
-    .message-babinsa {
-      background: #1e3a5f;
-      color: white;
-    }
-    .message-time {
-      font-size: 0.6rem;
-      opacity: 0.6;
-      margin-top: 2px;
-      text-align: right;
-    }
-    .message-system {
-      text-align: center;
-      font-size: 0.7rem;
-      color: #8abf9a;
-      margin: 4px 0;
-    }
-    #chatInputRow {
-      display: flex;
-      gap: 8px;
-      padding: 10px 12px;
-      border-top: 1px solid var(--border);
-      background: var(--card);
-    }
-    #chatInput {
-      flex: 1;
-      padding: 8px 14px;
-      border-radius: 30px;
-      border: 1px solid var(--border);
-      background: #121212;
-      color: white;
-      outline: none;
-      font-size: 1rem;
-    }
-    #chatInput::placeholder { color: #555; }
-    #chatSendBtn {
-      background: var(--accent);
-      border: none;
-      border-radius: 30px;
-      padding: 0 16px;
-      font-weight: 600;
-      color: #121212;
-      cursor: pointer;
-    }
-    #chatSendBtn:hover { opacity: 0.8; }
   </style>
 </head>
 <body>
@@ -559,49 +342,91 @@
 <div class="tab-bar">
   <button class="tab-btn active" data-tab="preview"><i class="fa-regular fa-eye"></i> Preview</button>
   <button class="tab-btn" data-tab="admin"><i class="fa-solid fa-user-shield"></i> Admin</button>
+  <button class="tab-btn" data-tab="stats"><i class="fa-solid fa-chart-bar"></i> Statistik</button>
+  <button class="tab-btn" data-tab="map"><i class="fa-solid fa-map-location-dot"></i> Peta</button>
 </div>
 
-<!-- TAB PREVIEW -->
+<!-- ===== TAB PREVIEW ===== -->
 <div id="preview-tab" class="tab-content active">
-  <div id="preview-table-wrap">
+  <div id="preview-table-wrap" data-aos="fade-up">
     <table id="preview-table">
       <thead><tr><th>Tanggal</th><th>Bungkulan Post</th><th>Komodo Warehouse</th></tr></thead>
       <tbody id="preview-body"><tr><td colspan="3" class="preview-empty">Memuat data...</td></tr></tbody>
     </table>
     <div class="button-group">
-      <button class="btn btn-share" onclick="shareToday()"><i class="fab fa-whatsapp"></i> Share</button>
-      <button class="btn btn-png" onclick="saveAsImage()"><i class="fas fa-image"></i> PNG</button>
-    </div>
-    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
-      <button class="btn btn-backup" onclick="backupData()"><i class="fa-solid fa-download"></i> Backup</button>
-      <button class="btn btn-restore" id="restoreBtn"><i class="fa-solid fa-upload"></i> Restore</button>
-      <input type="file" id="restoreInput" accept=".json" style="display:none" />
+      <div class="dropdown">
+        <button class="btn btn-share" id="shareDropdownBtn">
+          <i class="fas fa-share-alt"></i> Share/PNG <i class="fas fa-chevron-down" style="font-size:0.7rem;"></i>
+        </button>
+        <div class="dropdown-content" id="shareDropdown">
+          <button onclick="shareToday()"><i class="fab fa-whatsapp"></i> Share WhatsApp</button>
+          <button onclick="exportPNG()"><i class="fas fa-image"></i> Export PNG</button>
+        </div>
+      </div>
+      <button class="btn btn-pdf" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+      <button class="btn btn-notif" onclick="sendNotif()"><i class="fas fa-bell"></i> Notifikasi</button>
     </div>
   </div>
 </div>
 
-<!-- TAB ADMIN -->
+<!-- ===== TAB ADMIN ===== -->
 <div id="admin-tab" class="tab-content">
   <div id="admin-pin-screen" style="display:none;"></div>
-  <div id="admin-content">
+  <div id="admin-content" data-aos="fade-up">
     <div class="clock-container"><div id="live-clock">--:--:--</div></div>
     <div id="greeting"></div>
     <div class="calendar" id="calendar"></div>
     <div style="margin-top:12px; text-align:center; font-size:0.8rem; color:#888;">
       <i class="fa-regular fa-circle-check"></i> Klik tanggal untuk mengisi jadwal
     </div>
+    <div style="margin-top:6px; text-align:center; font-size:0.75rem; color:#888; display:flex; justify-content:center; gap:16px; flex-wrap:wrap;">
+      <span><span style="display:inline-block; width:16px; height:16px; background:#b8860b; border-radius:4px; vertical-align:middle; margin-right:4px;"></span> Sudah diisi</span>
+      <span><span style="display:inline-block; width:16px; height:16px; background:#004d00; border-radius:4px; vertical-align:middle; margin-right:4px;"></span> Hari ini</span>
+      <span><span style="display:inline-block; width:16px; height:16px; background:#1e1e1e; border:1px solid #2c2c2c; border-radius:4px; vertical-align:middle; margin-right:4px;"></span> Kosong</span>
+    </div>
   </div>
 </div>
 
-<!-- MODAL INPUT -->
+<!-- ===== TAB STATISTIK ===== -->
+<div id="stats-tab" class="tab-content">
+  <div id="chart-container" data-aos="fade-up">
+    <h4><i class="fa-solid fa-chart-column"></i> Statistik Jumlah Jaga per Bulan</h4>
+    <canvas id="statsChart"></canvas>
+  </div>
+  <div class="bg-gray-800 rounded-2xl p-4 border border-gray-700" data-aos="fade-up" data-aos-delay="100">
+    <h4 class="text-gray-400 text-sm text-center mb-3"><i class="fa-solid fa-list-check"></i> Rekap Bulan Ini</h4>
+    <div id="rekap-bulan" class="text-center text-gray-300"></div>
+  </div>
+</div>
+
+<!-- ===== TAB PETA ===== -->
+<div id="map-tab" class="tab-content">
+  <div id="map-container" data-aos="fade-up">
+    <div id="map"></div>
+  </div>
+  <div class="text-center text-gray-400 text-xs mt-2">
+    <i class="fa-solid fa-location-dot text-red-500"></i> Lokasi Pos Jaga
+  </div>
+</div>
+
+<!-- ===== MODAL ===== -->
 <div class="modal" id="modal">
   <div class="modal-content">
     <button class="close-btn" onclick="closeModal()">✕</button>
     <h3 id="modal-date">📅 Pilih Tanggal</h3>
-    <div id="checkbox-list"></div>
+    <div class="modal-grid" id="modal-grid">
+      <div class="modal-col blue" id="col-bungkulan">
+        <h4>🪖 BUNGKULAN POST</h4>
+        <div id="bungkulan-list"></div>
+      </div>
+      <div class="modal-col green" id="col-komodo">
+        <h4>🪖 KOMODO WAREHOUSE</h4>
+        <div id="komodo-list"></div>
+      </div>
+    </div>
     <div class="modal-footer">
-      <button class="btn-save-modal" id="modalSaveBtn"><i class="fa-solid fa-floppy-disk"></i> Simpan</button>
       <button class="btn-save-modal" style="background:#555;color:white;" onclick="closeModal()">Batal</button>
+      <button class="btn-save-modal" id="modal-save-btn"><i class="fa-solid fa-floppy-disk"></i> Simpan</button>
     </div>
   </div>
 </div>
@@ -613,46 +438,30 @@
   <p style="text-align:right; margin-top:20px; font-style:italic;">generated by: Leong</p>
 </div>
 
-<!-- CHAT (opsional) -->
-<button id="chatToggleBtn"><i class="fa-regular fa-comment-dots"></i><span id="chatBadge">0</span></button>
-<div id="chatPanel" class="hide">
-  <div id="chatHeader">
-    <span><i class="fa-regular fa-comment-dots"></i> Live Chat</span>
-    <div id="chatStatus">
-      <span class="status-dot" id="statusDot"></span>
-      <span class="status-text" id="statusText">Online</span>
-      <span style="font-size:0.7rem;opacity:0.7;">| 👥 <span id="onlineCounter">0</span></span>
-    </div>
-    <button id="chatCloseBtn">&times;</button>
-  </div>
-  <div id="chatMessages"></div>
-  <div id="chatInputRow">
-    <input type="text" id="chatInput" placeholder="Tulis pesan..." />
-    <button id="chatSendBtn"><i class="fa-regular fa-paper-plane"></i></button>
-  </div>
-</div>
-
 <audio id="tingtong" preload="auto">
   <source src="https://notificationsounds.com/storage/sounds/file-sounds-1157-ting-tong.mp3" type="audio/mpeg" />
 </audio>
 
 <script>
   // ============================================================
-  //  1.  KONFIGURASI BACKEND (Google Apps Script Web App)
+  //  🔐 KONFIGURASI SUPABASE (PROJECT BARU)
   // ============================================================
-  const API_URL = 'https://script.google.com/macros/s/AKfycby.../exec'; // GANTI DENGAN URL DEPLOY ANDA
+  const SUPABASE_URL = 'https://afbqoyqzkkjwuncgrkys.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmYnFveXF6a2tqd3VuY2dya3lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NTY3OTEsImV4cCI6MjA5NzQzMjc5MX0.Dt4RX8sYL7rCY11-5UG-P0f15FIWwXmSuQcazbtK0sg';
 
   // ============================================================
-  //  2.  STATE
+  //  STATE
   // ============================================================
   let dataJadwal = {};
   const petugasList = ['Ajik Su', 'Wayan S', 'Mang Beni', 'Indra S', 'Kadek Widana'];
   const today = new Date();
   let isLoading = false;
-  let currentDate = null; // tanggal yang sedang di-edit
+  let supabaseClient = null;
+  let chartInstance = null;
+  let mapInstance = null;
 
   // ============================================================
-  //  3.  HELPERS
+  //  HELPERS
   // ============================================================
   function pad(n) { return n.toString().padStart(2, '0'); }
   function formatDate(d) { return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
@@ -662,14 +471,9 @@
     const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
     return `${hari[d.getDay()]}, ${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}`;
   }
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
 
   // ============================================================
-  //  4.  INDIKATOR SINYAL
+  //  INDIKATOR SINYAL
   // ============================================================
   function updateSignalIndicator() {
     const indicator = document.getElementById('signal-indicator');
@@ -687,26 +491,37 @@
   updateSignalIndicator();
 
   // ============================================================
-  //  5.  CRUD via GOOGLE SHEETS (API)
+  //  SUPABASE CLIENT
+  // ============================================================
+  function getSupabase() {
+    if (!supabaseClient) {
+      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+    return supabaseClient;
+  }
+
+  // ============================================================
+  //  CRUD SUPABASE
   // ============================================================
   async function fetchJadwal() {
     if (isLoading) return;
     isLoading = true;
     showStatus('info', '⏳ Mengambil data...');
     try {
-      const resp = await fetch(API_URL);
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      const data = await resp.json();
+      const client = getSupabase();
+      const { data, error } = await client.from('jadwal').select('*');
+      if (error) throw error;
       dataJadwal = {};
       data.forEach(row => {
         dataJadwal[row.tanggal] = {
-          bungkulan: row.bungkulan ? JSON.parse(row.bungkulan) : [],
-          komodo: row.komodo ? JSON.parse(row.komodo) : []
+          bungkulan: row.bungkulan || [],
+          komodo: row.komodo || []
         };
       });
       renderPreview();
       renderCalendar();
-      showStatus('success', '✅ Data dimuat dari Google Sheets');
+      updateStats();
+      showStatus('success', '✅ Data dimuat dari Supabase');
     } catch (err) {
       console.error(err);
       showStatus('error', '❌ Gagal ambil data: ' + err.message);
@@ -716,56 +531,48 @@
 
   async function saveJadwal(tanggal, bungkulan, komodo) {
     try {
-      // Cek apakah tanggal sudah ada
-      const existing = dataJadwal[tanggal];
-      const action = (existing && (existing.bungkulan.length || existing.komodo.length)) ? 'update' : 'insert';
-
-      const payload = {
-        action: action,
-        data: { tanggal, bungkulan, komodo }
-      };
-
-      showStatus('info', '⏳ Menyimpan data...');
-      const resp = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+      const client = getSupabase();
+      const { error } = await client
+        .from('jadwal')
+        .upsert({ tanggal, bungkulan, komodo }, { onConflict: 'tanggal' });
+      if (error) throw error;
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Jadwal berhasil disimpan ke Supabase',
+        timer: 1500,
+        showConfirmButton: false
       });
-
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      const result = await resp.json();
-      if (result.status !== 'ok') throw new Error(result.message);
-
       await fetchJadwal();
-      showStatus('success', '✅ Data berhasil disimpan!');
     } catch (err) {
-      console.error(err);
-      alert('Gagal simpan: ' + err.message);
-      showStatus('error', '❌ Gagal simpan: ' + err.message);
-    }
-  }
-
-  async function deleteAllJadwal() {
-    if (!confirm('⚠️ Hapus semua jadwal?')) return;
-    try {
-      const payload = { action: 'delete_all', data: {} };
-      const resp = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: err.message
       });
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      const result = await resp.json();
-      if (result.status !== 'ok') throw new Error(result.message);
-      await fetchJadwal();
-      showStatus('success', '✅ Semua data telah dihapus');
-    } catch (err) {
-      alert('Gagal reset: ' + err.message);
     }
   }
 
   // ============================================================
-  //  6.  RENDER PREVIEW
+  //  AUTO DELETE EXPIRED
+  // ============================================================
+  function autoDeleteExpired() {
+    const todayStr = formatDate(today);
+    let hasDeleted = false;
+    for (const [tgl] of Object.entries(dataJadwal)) {
+      if (tgl < todayStr) {
+        delete dataJadwal[tgl];
+        hasDeleted = true;
+      }
+    }
+    if (hasDeleted) {
+      renderPreview();
+      renderCalendar();
+    }
+  }
+
+  // ============================================================
+  //  RENDER PREVIEW
   // ============================================================
   function renderPreview() {
     const tbody = document.getElementById('preview-body');
@@ -785,90 +592,99 @@
   }
 
   // ============================================================
-  //  7.  ADMIN – KALENDER & MODAL
+  //  KALENDER (ADMIN)
   // ============================================================
   function renderCalendar() {
     const cal = document.getElementById('calendar');
     if (!cal) return;
     cal.innerHTML = '';
-    const y = today.getFullYear(), m = today.getMonth();
-    const days = new Date(y, m+1, 0).getDate();
-    const first = new Date(y, m, 1).getDay();
-    for (let i=0; i<first; i++) {
+    const y = today.getFullYear();
+    const m = today.getMonth();
+    const days = new Date(y, m + 1, 0).getDate();
+    const firstDay = new Date(y, m, 1).getDay();
+    const namaHari = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+
+    for (let i = 0; i < 7; i++) {
+      const header = document.createElement('div');
+      header.className = 'calendar-header';
+      if (i === 0) header.classList.add('minggu');
+      header.textContent = namaHari[i];
+      cal.appendChild(header);
+    }
+    for (let i = 0; i < firstDay; i++) {
       const empty = document.createElement('div');
       empty.style.cssText = 'background:transparent;border:none;box-shadow:none;cursor:default;';
       cal.appendChild(empty);
     }
-    for (let d=1; d<=days; d++) {
+    for (let d = 1; d <= days; d++) {
       const dateStr = `${y}-${pad(m+1)}-${pad(d)}`;
       const el = document.createElement('div');
       el.className = 'day';
+      const dateObj = new Date(y, m, d);
+      if (dateObj.getDay() === 0) el.classList.add('minggu');
       if (dateStr === formatDate(today)) el.classList.add('today');
-      if (dataJadwal[dateStr] && 
-         ((dataJadwal[dateStr].bungkulan?.length || 0) + (dataJadwal[dateStr].komodo?.length || 0) > 0)) {
-        el.classList.add('has-data');
-      }
+      const hasData = dataJadwal[dateStr] &&
+        ((dataJadwal[dateStr].bungkulan?.length || 0) + (dataJadwal[dateStr].komodo?.length || 0) > 0);
+      if (hasData) el.classList.add('has-data');
       el.innerHTML = `<strong>${d}</strong>`;
-      if (dataJadwal[dateStr]) {
+      if (hasData) {
         const count = (dataJadwal[dateStr].bungkulan?.length || 0) + (dataJadwal[dateStr].komodo?.length || 0);
-        if (count > 0) el.innerHTML += `<span style="font-size:10px;opacity:0.9;margin-top:2px;">${count} jaga</span>`;
+        el.innerHTML += `<span style="font-size:10px;opacity:0.9;margin-top:2px;">${count} jaga</span>`;
       }
       el.onclick = () => openModal(dateStr);
       cal.appendChild(el);
     }
   }
 
+  // ============================================================
+  //  MODAL
+  // ============================================================
   window.openModal = function(dateStr) {
-    currentDate = dateStr;
     const modal = document.getElementById('modal');
-    document.getElementById('modal-date').innerText = formatTanggalLengkap(dateStr);
+    document.getElementById('modal-date').innerText = '📅 ' + formatTanggalLengkap(dateStr);
     if (!dataJadwal[dateStr]) dataJadwal[dateStr] = { bungkulan: [], komodo: [] };
 
-    const list = document.getElementById('checkbox-list');
-    list.innerHTML = '';
-    const lokasi = [
-      { key: 'bungkulan', title: '🪖 BUNGKULAN POST', class: 'blue' },
-      { key: 'komodo', title: '🪖 KOMODO WAREHOUSE', class: 'green' }
-    ];
-    lokasi.forEach(lok => {
-      const div = document.createElement('div');
-      div.className = `section ${lok.class}`;
-      const wrapper = document.createElement('div');
-      wrapper.className = 'section-title-wrapper';
-      wrapper.innerHTML = `<h4>${lok.title}</h4>`;
-      div.appendChild(wrapper);
-      petugasList.forEach(nama => {
-        const label = document.createElement('label');
-        const cb = document.createElement('input');
-        cb.type = 'checkbox';
-        cb.checked = dataJadwal[dateStr][lok.key]?.includes(nama) || false;
-        cb.onchange = function() {
-          if (!dataJadwal[dateStr][lok.key]) dataJadwal[dateStr][lok.key] = [];
-          if (cb.checked) {
-            if (!dataJadwal[dateStr][lok.key].includes(nama)) dataJadwal[dateStr][lok.key].push(nama);
-          } else {
-            dataJadwal[dateStr][lok.key] = dataJadwal[dateStr][lok.key].filter(n => n !== nama);
-          }
-          // Update judul modal dengan jumlah jaga
-          const count = dataJadwal[dateStr].bungkulan.length + dataJadwal[dateStr].komodo.length;
-          document.getElementById('modal-date').innerText = 
-            `📅 ${formatTanggalLengkap(dateStr)} (${count} jaga)`;
-        };
-        label.appendChild(cb);
-        label.append(' ' + nama);
-        div.appendChild(label);
-      });
-      list.appendChild(div);
+    const bungkulanList = document.getElementById('bungkulan-list');
+    bungkulanList.innerHTML = '';
+    petugasList.forEach(nama => {
+      const label = document.createElement('label');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = dataJadwal[dateStr].bungkulan.includes(nama);
+      cb.dataset.nama = nama;
+      cb.dataset.lokasi = 'bungkulan';
+      label.appendChild(cb);
+      label.append(' ' + nama);
+      bungkulanList.appendChild(label);
     });
 
-    // Set tombol simpan
-    const saveBtn = document.getElementById('modalSaveBtn');
+    const komodoList = document.getElementById('komodo-list');
+    komodoList.innerHTML = '';
+    petugasList.forEach(nama => {
+      const label = document.createElement('label');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = dataJadwal[dateStr].komodo.includes(nama);
+      cb.dataset.nama = nama;
+      cb.dataset.lokasi = 'komodo';
+      label.appendChild(cb);
+      label.append(' ' + nama);
+      komodoList.appendChild(label);
+    });
+
+    const saveBtn = document.getElementById('modal-save-btn');
     saveBtn.onclick = async function() {
-      const data = dataJadwal[currentDate];
-      await saveJadwal(currentDate, data.bungkulan, data.komodo);
+      const bungkulan = [];
+      const komodo = [];
+      document.querySelectorAll('#bungkulan-list input[type="checkbox"]:checked').forEach(cb => {
+        bungkulan.push(cb.dataset.nama);
+      });
+      document.querySelectorAll('#komodo-list input[type="checkbox"]:checked').forEach(cb => {
+        komodo.push(cb.dataset.nama);
+      });
+      await saveJadwal(dateStr, bungkulan, komodo);
       closeModal();
     };
-
     modal.style.display = 'flex';
   };
 
@@ -881,11 +697,11 @@
   };
 
   // ============================================================
-  //  8.  JAM & SALAM
+  //  JAM & SALAM
   // ============================================================
   function updateClock() {
     const now = new Date();
-    document.getElementById('live-clock').innerText = 
+    document.getElementById('live-clock').innerText =
       `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
   }
   setInterval(updateClock, 1000);
@@ -903,26 +719,22 @@
   ucapanSalam();
 
   // ============================================================
-  //  9.  SHARE, PNG, BACKUP/RESTORE
+  //  DROPDOWN
   // ============================================================
-  window.shareToday = function() {
-    const ting = document.getElementById('tingtong');
-    if (ting) ting.play().catch(()=>{});
-    const dateStr = formatDate(today);
-    const data = dataJadwal[dateStr];
-    if (!data || (!data.bungkulan?.length && !data.komodo?.length)) {
-      alert('⚠️ Belum ada jadwal untuk hari ini.');
-      return;
-    }
-    const teks = 
-      `🪖 *DUTY SCHEDULE*\n━━━━━━━━━━━━━━━━\n📅 ${formatTanggalLengkap(dateStr)}\n\n` +
-      `🔵 *BUNGKULAN POST*\n${(data.bungkulan?.length ? data.bungkulan.map((n,i)=>`${i+1}. 🪖 ${n}`).join('\n') : '   -')}` +
-      `\n\n🟢 *KOMODO WAREHOUSE*\n${(data.komodo?.length ? data.komodo.map((n,i)=>`${i+1}. 🪖 ${n}`).join('\n') : '   -')}` +
-      `\n\n━━━━━━━━━━━━━━━━\n#DutyToday`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(teks)}`, '_blank');
-  };
+  document.getElementById('shareDropdownBtn').addEventListener('click', function(e) {
+    e.stopPropagation();
+    document.getElementById('shareDropdown').classList.toggle('show');
+  });
+  document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('shareDropdown');
+    if (!e.target.closest('.dropdown')) dropdown.classList.remove('show');
+  });
 
-  window.saveAsImage = function() {
+  // ============================================================
+  //  EXPORT PNG
+  // ============================================================
+  window.exportPNG = function() {
+    document.getElementById('shareDropdown').classList.remove('show');
     const printArea = document.getElementById('print-area');
     const table = document.getElementById('print-table');
     table.innerHTML = '';
@@ -931,7 +743,6 @@
     headerRow.style.color = 'white';
     headerRow.innerHTML = `<td style="width:35%;">Tanggal</td><td style="width:32%;">Bungkulan Post</td><td style="width:33%;">Komodo Warehouse</td>`;
     table.appendChild(headerRow);
-
     const entries = Object.entries(dataJadwal).sort((a,b) => a[0].localeCompare(b[0]));
     if (entries.length === 0) {
       const row = document.createElement('tr');
@@ -946,13 +757,11 @@
         table.appendChild(row);
       });
     }
-
     printArea.style.position = 'fixed';
     printArea.style.left = '0';
     printArea.style.top = '0';
     printArea.style.zIndex = '9999';
     printArea.style.background = 'white';
-
     html2canvas(printArea, { scale: 2, backgroundColor: '#ffffff', logging: false, allowTaint: false, useCORS: true })
       .then(canvas => {
         printArea.style.position = 'absolute';
@@ -963,70 +772,245 @@
         link.click();
       })
       .catch(err => {
-        alert('Gagal export gambar: ' + err);
+        Swal.fire('Error!', 'Gagal export PNG: ' + err, 'error');
         printArea.style.position = 'absolute';
         printArea.style.left = '-9999px';
       });
   };
 
-  window.backupData = function() {
-    const dataStr = JSON.stringify(dataJadwal, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `jadwal_backup_${formatDate(new Date())}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  // ============================================================
+  //  EXPORT PDF
+  // ============================================================
+  window.exportPDF = function() {
+    const printArea = document.getElementById('print-area');
+    const table = document.getElementById('print-table');
+    table.innerHTML = '';
+    const headerRow = document.createElement('tr');
+    headerRow.style.backgroundColor = '#1e3a5f';
+    headerRow.style.color = 'white';
+    headerRow.innerHTML = `<td style="width:35%;">Tanggal</td><td style="width:32%;">Bungkulan Post</td><td style="width:33%;">Komodo Warehouse</td>`;
+    table.appendChild(headerRow);
+    const entries = Object.entries(dataJadwal).sort((a,b) => a[0].localeCompare(b[0]));
+    if (entries.length === 0) {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td colspan="3" style="text-align:center;padding:20px;">Belum ada data jadwal</td>`;
+      table.appendChild(row);
+    } else {
+      entries.forEach(([tgl, data]) => {
+        const bungkulan = data.bungkulan?.length ? data.bungkulan.map(n => '🪖 ' + n).join('<br>') : '—';
+        const komodo = data.komodo?.length ? data.komodo.map(n => '🪖 ' + n).join('<br>') : '—';
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${formatTanggalLengkap(tgl)}</td><td>${bungkulan}</td><td>${komodo}</td>`;
+        table.appendChild(row);
+      });
+    }
+    printArea.style.position = 'fixed';
+    printArea.style.left = '0';
+    printArea.style.top = '0';
+    printArea.style.zIndex = '9999';
+    printArea.style.background = 'white';
+    printArea.style.width = '1000px';
+    printArea.style.padding = '30px 25px';
+
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: `DutySchedule-${formatDate(today)}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, logging: false, allowTaint: false, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(printArea).save().then(() => {
+      printArea.style.position = 'absolute';
+      printArea.style.left = '-9999px';
+    }).catch(err => {
+      Swal.fire('Error!', 'Gagal export PDF: ' + err, 'error');
+      printArea.style.position = 'absolute';
+      printArea.style.left = '-9999px';
+    });
   };
 
-  function setupRestore() {
-    const input = document.getElementById('restoreInput');
-    const btn = document.getElementById('restoreBtn');
-    btn.addEventListener('click', () => input.click());
-    input.addEventListener('change', function(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = async function(e) {
-        try {
-          const imported = JSON.parse(e.target.result);
-          if (typeof imported === 'object' && imported !== null) {
-            if (!confirm(`⚠️ Akan mengganti semua data dengan data dari file ${file.name}?`)) return;
-            await deleteAllJadwal();
-            for (const [tgl, data] of Object.entries(imported)) {
-              await saveJadwal(tgl, data.bungkulan || [], data.komodo || []);
-            }
-            await fetchJadwal();
-            alert('✅ Restore berhasil!');
-          } else {
-            alert('❌ Format file tidak valid.');
-          }
-        } catch (err) {
-          alert('❌ Gagal restore: ' + err.message);
+  // ============================================================
+  //  SHARE WHATSAPP
+  // ============================================================
+  window.shareToday = function() {
+    document.getElementById('shareDropdown').classList.remove('show');
+    const ting = document.getElementById('tingtong');
+    if (ting) ting.play().catch(()=>{});
+    const dateStr = formatDate(today);
+    const data = dataJadwal[dateStr];
+    if (!data || (!data.bungkulan?.length && !data.komodo?.length)) {
+      Swal.fire('Info', 'Belum ada jadwal untuk hari ini.', 'info');
+      return;
+    }
+    const teks =
+      `🪖 *DUTY SCHEDULE*\n━━━━━━━━━━━━━━━━\n📅 ${formatTanggalLengkap(dateStr)}\n\n` +
+      `🔵 *BUNGKULAN POST*\n${(data.bungkulan?.length ? data.bungkulan.map((n,i)=>`${i+1}. 🪖 ${n}`).join('\n') : '   -')}` +
+      `\n\n🟢 *KOMODO WAREHOUSE*\n${(data.komodo?.length ? data.komodo.map((n,i)=>`${i+1}. 🪖 ${n}`).join('\n') : '   -')}` +
+      `\n\n━━━━━━━━━━━━━━━━\n#DutyToday`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(teks)}`, '_blank');
+  };
+
+  // ============================================================
+  //  NOTIFIKASI
+  // ============================================================
+  window.sendNotif = function() {
+    const dateStr = formatDate(today);
+    const data = dataJadwal[dateStr];
+    if (!data || (!data.bungkulan?.length && !data.komodo?.length)) {
+      Swal.fire('Info', 'Belum ada jadwal untuk hari ini.', 'info');
+      return;
+    }
+    const message =
+      `🪖 DUTY SCHEDULE HARI INI\n` +
+      `📅 ${formatTanggalLengkap(dateStr)}\n` +
+      `🔵 BUNGKULAN: ${data.bungkulan?.length ? data.bungkulan.join(', ') : 'Tidak ada'}\n` +
+      `🟢 KOMODO: ${data.komodo?.length ? data.komodo.join(', ') : 'Tidak ada'}`;
+    Swal.fire({
+      icon: 'success',
+      title: 'Notifikasi Dikirim!',
+      text: message,
+      confirmButtonColor: '#25d366'
+    });
+    console.log('Notifikasi:', message);
+  };
+
+  // ============================================================
+  //  STATISTIK (Chart.js)
+  // ============================================================
+  function updateStats() {
+    const now = new Date();
+    const bulan = now.getMonth();
+    const tahun = now.getFullYear();
+    let totalBungkulan = 0, totalKomodo = 0, totalHari = 0;
+
+    Object.entries(dataJadwal).forEach(([tgl, data]) => {
+      const d = new Date(tgl + 'T12:00:00');
+      if (d.getMonth() === bulan && d.getFullYear() === tahun) {
+        totalHari++;
+        totalBungkulan += data.bungkulan?.length || 0;
+        totalKomodo += data.komodo?.length || 0;
+      }
+    });
+
+    const rekapEl = document.getElementById('rekap-bulan');
+    if (rekapEl) {
+      rekapEl.innerHTML = `
+        <div class="flex justify-center gap-6 flex-wrap">
+          <span><i class="fa-solid fa-calendar-day text-blue-400"></i> Hari: <strong>${totalHari}</strong></span>
+          <span><i class="fa-solid fa-user text-blue-400"></i> Bungkulan: <strong>${totalBungkulan}</strong></span>
+          <span><i class="fa-solid fa-user text-green-400"></i> Komodo: <strong>${totalKomodo}</strong></span>
+          <span><i class="fa-solid fa-users text-yellow-400"></i> Total: <strong>${totalBungkulan + totalKomodo}</strong></span>
+        </div>
+      `;
+    }
+
+    const ctx = document.getElementById('statsChart');
+    if (!ctx) return;
+    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+    const labels = [];
+    const dataBungkulan = [];
+    const dataKomodo = [];
+
+    for (let i = 0; i < 12; i++) {
+      const bulanIdx = (bulan - i + 12) % 12;
+      const tahunIdx = bulan - i < 0 ? tahun - 1 : tahun;
+      const namaBulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][bulanIdx];
+      labels.unshift(namaBulan + ' ' + tahunIdx);
+      let b = 0, k = 0;
+      Object.entries(dataJadwal).forEach(([tgl, data]) => {
+        const d = new Date(tgl + 'T12:00:00');
+        if (d.getMonth() === bulanIdx && d.getFullYear() === tahunIdx) {
+          b += data.bungkulan?.length || 0;
+          k += data.komodo?.length || 0;
         }
-      };
-      reader.readAsText(file);
-      event.target.value = '';
+      });
+      dataBungkulan.unshift(b);
+      dataKomodo.unshift(k);
+    }
+
+    chartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'Bungkulan Post', data: dataBungkulan, backgroundColor: 'rgba(42, 127, 170, 0.7)', borderColor: '#2a7faa', borderWidth: 1 },
+          { label: 'Komodo Warehouse', data: dataKomodo, backgroundColor: 'rgba(46, 204, 113, 0.7)', borderColor: '#2ecc71', borderWidth: 1 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { labels: { color: '#aaa' } } },
+        scales: {
+          x: { ticks: { color: '#888', maxRotation: 45 } },
+          y: { ticks: { color: '#888', stepSize: 1 } }
+        }
+      }
     });
   }
 
   // ============================================================
-  //  10. TAB SWITCHING
+  //  PETA (Leaflet.js)
+  // ============================================================
+  function initMap() {
+    const container = document.getElementById('map');
+    if (!container) return;
+    if (mapInstance) { mapInstance.invalidateSize(); return; }
+
+    const pos1 = [-8.4095, 115.1886];
+    const pos2 = [-8.4200, 115.1800];
+
+    mapInstance = L.map('map').setView([-8.4145, 115.1843], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 19
+    }).addTo(mapInstance);
+
+    L.marker(pos1, {
+      icon: L.divIcon({
+        html: '<i class="fa-solid fa-helmet-safety" style="font-size:24px;color:#2a7faa;"></i>',
+        className: 'custom-marker', iconSize: [30, 30], iconAnchor: [15, 15]
+      })
+    }).addTo(mapInstance).bindPopup('<b>Bungkulan Post</b><br>🪖 Pos Jaga Bungkulan');
+
+    L.marker(pos2, {
+      icon: L.divIcon({
+        html: '<i class="fa-solid fa-helmet-safety" style="font-size:24px;color:#2ecc71;"></i>',
+        className: 'custom-marker', iconSize: [30, 30], iconAnchor: [15, 15]
+      })
+    }).addTo(mapInstance).bindPopup('<b>Komodo Warehouse</b><br>🪖 Pos Jaga Komodo');
+
+    L.circle(pos1, { radius: 500, color: '#2a7faa', fillOpacity: 0.1 }).addTo(mapInstance);
+    L.circle(pos2, { radius: 500, color: '#2ecc71', fillOpacity: 0.1 }).addTo(mapInstance);
+
+    setTimeout(() => mapInstance.invalidateSize(), 500);
+  }
+
+  // ============================================================
+  //  TAB SWITCHING
   // ============================================================
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       this.classList.add('active');
-      const tab = this.dataset.tab;
+
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.getElementById(tab + '-tab').classList.add('active');
+
+      const tab = this.dataset.tab;
+      const target = document.getElementById(tab + '-tab');
+      if (target) target.classList.add('active');
+
       if (tab === 'preview') renderPreview();
+      if (tab === 'admin') renderCalendar();
+      if (tab === 'stats') setTimeout(() => updateStats(), 100);
+      if (tab === 'map') setTimeout(() => initMap(), 200);
     });
   });
 
   // ============================================================
-  //  11. STATUS DISPLAY
+  //  STATUS DISPLAY
   // ============================================================
   function showStatus(type, message) {
     const container = document.getElementById('preview-table-wrap');
@@ -1042,18 +1026,27 @@
   }
 
   // ============================================================
-  //  12. HILANGKAN POPUP INSTALL
+  //  HILANGKAN POPUP INSTALL
   // ============================================================
   window.addEventListener('beforeinstallprompt', (e) => e.preventDefault());
 
   // ============================================================
-  //  13. INISIALISASI
+  //  AOS INIT
+  // ============================================================
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof AOS !== 'undefined') {
+      AOS.init({ duration: 600, once: true, offset: 50 });
+    }
+  });
+
+  // ============================================================
+  //  INISIALISASI
   // ============================================================
   async function initApp() {
     await fetchJadwal();
-    setupRestore();
+    autoDeleteExpired();
     document.querySelector('.tab-btn[data-tab="preview"]').click();
-    console.log('✅ Aplikasi siap (Admin aktif dengan CORS)');
+    console.log('✅ Aplikasi siap (Supabase Aktif - Project Baru)');
   }
 
   initApp();
