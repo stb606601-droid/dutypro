@@ -961,6 +961,15 @@
   }
 
   // ============================================================
+  //  GET COLUMN NAME FROM JENIS JAGA
+  // ============================================================
+  function getColumnName(jenis) {
+    // Ubah "Bungkulan Post" menjadi "bungkulan" (tanpa spasi, lowercase)
+    // Ubah "Komodo Warehouse" menjadi "komodo"
+    return jenis.toLowerCase().replace(/ /g, '_').replace(/[^a-z0-9_]/g, '');
+  }
+
+  // ============================================================
   //  LOAD SETTINGS FROM SUPABASE
   // ============================================================
   async function loadSettings() {
@@ -1018,11 +1027,10 @@
   //  UPDATE HEADERS
   // ============================================================
   function updateHeaders() {
-    const headerBungkulan = document.getElementById('header-bungkulan');
-    const headerKomodo = document.getElementById('header-komodo');
-    if (settings.jenisJaga.length >= 2) {
-      if (headerBungkulan) headerBungkulan.textContent = settings.jenisJaga[0];
-      if (headerKomodo) headerKomodo.textContent = settings.jenisJaga[1];
+    const headers = document.querySelectorAll('#preview-table thead th');
+    if (headers.length >= 3) {
+      headers[1].textContent = settings.jenisJaga[0] || 'Bungkulan Post';
+      headers[2].textContent = settings.jenisJaga[1] || 'Komodo Warehouse';
     }
   }
 
@@ -1171,7 +1179,7 @@
       data.forEach(row => {
         dataJadwal[row.tanggal] = {};
         settings.jenisJaga.forEach(jenis => {
-          const key = jenis.toLowerCase().replace(/ /g, '_');
+          const key = getColumnName(jenis);
           dataJadwal[row.tanggal][key] = row[key] || [];
         });
       });
@@ -1191,7 +1199,7 @@
       const client = getSupabase();
       const payload = { tanggal };
       settings.jenisJaga.forEach(jenis => {
-        const key = jenis.toLowerCase().replace(/ /g, '_');
+        const key = getColumnName(jenis);
         payload[key] = dataJadwalPerTanggal[key] || [];
       });
       const { error } = await client
@@ -1248,7 +1256,7 @@
     entries.forEach(([tgl, data]) => {
       let rowHtml = `<td>${formatTanggalLengkap(tgl)}</td>`;
       settings.jenisJaga.forEach(jenis => {
-        const key = jenis.toLowerCase().replace(/ /g, '_');
+        const key = getColumnName(jenis);
         const items = data[key]?.length ? data[key].map(n => '🪖 ' + n).join('<br>') : '—';
         rowHtml += `<td>${items}</td>`;
       });
@@ -1299,7 +1307,7 @@
       let totalCount = 0;
       if (dataJadwal[dateStr]) {
         settings.jenisJaga.forEach(jenis => {
-          const key = jenis.toLowerCase().replace(/ /g, '_');
+          const key = getColumnName(jenis);
           const count = dataJadwal[dateStr][key]?.length || 0;
           totalCount += count;
         });
@@ -1340,7 +1348,7 @@
     const icons = ['fa-shield-halved', 'fa-dragon', 'fa-star', 'fa-crown', 'fa-fire'];
 
     settings.jenisJaga.forEach((jenis, idx) => {
-      const key = jenis.toLowerCase().replace(/ /g, '_');
+      const key = getColumnName(jenis);
       const colClass = idx % 2 === 0 ? 'blue' : 'green';
 
       const col = document.createElement('div');
@@ -1370,13 +1378,13 @@
     saveBtn.onclick = async function() {
       const result = {};
       settings.jenisJaga.forEach(jenis => {
-        const key = jenis.toLowerCase().replace(/ /g, '_');
+        const key = getColumnName(jenis);
         const list = document.getElementById(`list-${key}`);
         const checked = list.querySelectorAll('input[type="checkbox"]:checked');
         result[key] = Array.from(checked).map(cb => cb.dataset.nama);
       });
       settings.jenisJaga.forEach(jenis => {
-        const key = jenis.toLowerCase().replace(/ /g, '_');
+        const key = getColumnName(jenis);
         dataJadwal[dateStr][key] = result[key] || [];
       });
       await saveJadwal(dateStr, dataJadwal[dateStr]);
@@ -1476,7 +1484,7 @@
     let teks = `🪖 *DUTY SCHEDULE*\n━━━━━━━━━━━━━━━━\n📅 ${formatTanggalLengkap(dateStr)}\n\n`;
     const icons = ['🔵', '🟢', '🟡', '🟣', '🔴'];
     settings.jenisJaga.forEach((jenis, idx) => {
-      const key = jenis.toLowerCase().replace(/ /g, '_');
+      const key = getColumnName(jenis);
       teks += `${icons[idx % icons.length]} *${jenis.toUpperCase()}*\n`;
       if (data[key] && data[key].length) {
         teks += data[key].map((n, i) => `${i+1}. 🪖 ${n}`).join('\n');
@@ -1540,7 +1548,7 @@
     entries.forEach(([tgl, data]) => {
       let rowHtml = `<td>${formatTanggalLengkap(tgl)}</td>`;
       settings.jenisJaga.forEach(jenis => {
-        const key = jenis.toLowerCase().replace(/ /g, '_');
+        const key = getColumnName(jenis);
         const items = data[key]?.length ? data[key].map(n => '🪖 ' + n).join('<br>') : '—';
         rowHtml += `<td>${items}</td>`;
       });
@@ -1625,7 +1633,7 @@
     const totals = {};
 
     settings.jenisJaga.forEach(jenis => {
-      const key = jenis.toLowerCase().replace(/ /g, '_');
+      const key = getColumnName(jenis);
       totals[key] = 0;
     });
 
@@ -1634,7 +1642,7 @@
       if (d.getMonth() === bulan && d.getFullYear() === tahun) {
         totalHari++;
         settings.jenisJaga.forEach(jenis => {
-          const key = jenis.toLowerCase().replace(/ /g, '_');
+          const key = getColumnName(jenis);
           totals[key] += data[key]?.length || 0;
         });
       }
@@ -1646,7 +1654,7 @@
       const colors = ['text-blue-400', 'text-green-400', 'text-yellow-400', 'text-purple-400', 'text-red-400'];
       const icons = ['fa-shield-halved', 'fa-dragon', 'fa-star', 'fa-crown', 'fa-fire'];
       settings.jenisJaga.forEach((jenis, idx) => {
-        const key = jenis.toLowerCase().replace(/ /g, '_');
+        const key = getColumnName(jenis);
         html += `<span><i class="fa-solid ${icons[idx % icons.length]} ${colors[idx % colors.length]}"></i> ${jenis}: <strong>${totals[key] || 0}</strong></span>`;
       });
       const totalAll = Object.values(totals).reduce((a, b) => a + b, 0);
@@ -1665,7 +1673,7 @@
     const borders = ['#2a7faa', '#2ecc71', '#f1c40f', '#9b59b6', '#e74c3c'];
 
     settings.jenisJaga.forEach((jenis, idx) => {
-      const key = jenis.toLowerCase().replace(/ /g, '_');
+      const key = getColumnName(jenis);
       datasets.push({
         label: jenis,
         data: [],
@@ -1682,7 +1690,7 @@
       labels.unshift(namaBulan + ' ' + tahunIdx);
 
       settings.jenisJaga.forEach((jenis, idx) => {
-        const key = jenis.toLowerCase().replace(/ /g, '_');
+        const key = getColumnName(jenis);
         let total = 0;
         Object.entries(dataJadwal).forEach(([tgl, data]) => {
           const d = new Date(tgl + 'T12:00:00');
@@ -1780,7 +1788,7 @@
     await fetchJadwal();
     autoDeleteExpired();
     document.querySelector('.tab-btn[data-tab="preview"]').click();
-    console.log('✅ Aplikasi siap - Full Lengkap');
+    console.log('✅ Aplikasi siap - Fixed Column Names');
   }
 
   initApp();
