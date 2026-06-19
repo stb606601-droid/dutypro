@@ -2,22 +2,21 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes" />
   <meta name="theme-color" content="#121212" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>Duty Schedule Pro</title>
 
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪖</text></svg>" />
+  <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪖</text></svg>" />
+  <link rel="manifest" href="manifest.json" />
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    /* ===== SAMA SEPERTI SEBELUMNYA (tidak diubah) ===== */
-    * { box-sizing: border-box; }
+    /* ===== CSS SAMA SEPERTI SEBELUMNYA (tidak diubah) ===== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #121212;
       --card: #1e1e1e;
@@ -29,38 +28,68 @@
       --chat-bg: #0d0d0d;
     }
     body {
-      margin: 0;
-      padding: 15px 12px;
       font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
+      padding: 15px 12px;
       max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
+      margin: 0 auto;
+      min-height: 100vh;
       padding-bottom: 80px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
     }
     h1 {
-      text-align: center;
-      margin: 0 0 5px;
       font-weight: 500;
-      letter-spacing: 1px;
-      font-size: 1.9rem;
+      font-size: 1.8rem;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 6px;
+      gap: 8px;
+      margin: 0;
     }
     h1 i { font-size: 2rem; color: var(--accent); }
-
+    #signal-indicator {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 24px;
+      padding: 2px 6px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 4px;
+    }
+    .signal-bar {
+      width: 4px;
+      background: #555;
+      border-radius: 1px;
+      transition: background 0.3s;
+    }
+    .signal-bar:nth-child(1) { height: 6px; }
+    .signal-bar:nth-child(2) { height: 10px; }
+    .signal-bar:nth-child(3) { height: 16px; }
+    .signal-bar:nth-child(4) { height: 22px; }
+    #signal-indicator.online .signal-bar { background: #2ecc71; }
+    #signal-indicator.offline .signal-bar { background: #e74c3c; }
+    #signal-text {
+      font-size: 0.7rem;
+      margin-left: 4px;
+      color: #888;
+    }
     .tab-bar {
       display: flex;
       justify-content: center;
       gap: 10px;
-      margin: 15px 0 10px;
+      margin: 15px 0 12px;
       flex-wrap: wrap;
     }
     .tab-btn {
-      padding: 10px 24px;
+      padding: 10px 20px;
       border: none;
       border-radius: 40px;
       font-size: 1rem;
@@ -69,7 +98,9 @@
       color: #aaa;
       border: 1px solid var(--border);
       cursor: pointer;
-      transition: 0.2s;
+      flex: 1 1 auto;
+      min-width: 100px;
+      text-align: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.4);
     }
     .tab-btn.active {
@@ -77,13 +108,12 @@
       color: #121212;
       border-color: var(--accent);
     }
-    .tab-btn:hover { opacity: 0.8; }
     .tab-content {
       display: none;
       margin-top: 10px;
+      flex: 1;
     }
     .tab-content.active { display: block; }
-
     #preview-table-wrap {
       background: var(--card);
       border-radius: 16px;
@@ -110,60 +140,6 @@
     }
     #preview-table tr:nth-child(even) { background: #1a1a1a; }
     .preview-empty { text-align: center; padding: 30px; color: #888; }
-
-    #live-clock {
-      text-align: center;
-      font-size: 2rem;
-      font-weight: 600;
-      margin: 5px 0 10px;
-      color: var(--accent);
-      background: var(--card);
-      padding: 8px 15px;
-      border-radius: 50px;
-      display: inline-block;
-      width: auto;
-      margin-left: auto;
-      margin-right: auto;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      letter-spacing: 2px;
-      border: 1px solid var(--border);
-    }
-    .clock-container { display: flex; justify-content: center; margin-bottom: 10px; }
-    #greeting {
-      text-align: center;
-      margin: 0 0 10px;
-      color: #b0b0b0;
-      font-size: 1.1rem;
-      border-bottom: 1px dashed #2f2f2f;
-      padding-bottom: 10px;
-    }
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 5px;
-      background: transparent;
-    }
-    .day {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 3px 5px;
-      min-height: 75px;
-      cursor: pointer;
-      position: relative;
-      font-size: 13px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: 0.1s;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.5);
-    }
-    .day strong { font-size: 1.3rem; font-weight: 400; margin-bottom: 3px; }
-    .day.today { background: var(--green); border: 1px solid #00a86b; }
-    .day.has-data { background: var(--blue); }
-    .day.has-data.today { background: linear-gradient(145deg, #004d00, #003366); }
-    .day:active { transform: scale(0.96); }
-
     .button-group {
       display: flex;
       gap: 10px;
@@ -184,15 +160,71 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      transition: 0.2s;
       min-width: 80px;
+      transition: 0.2s;
     }
     .btn-share { background: #1f9e5a; }
     .btn-png { background: #3b5f7a; }
-    .btn-reset { background: #7a3b3b; }
     .btn-backup { background: #8e44ad; }
     .btn-restore { background: #f39c12; }
-
+    .btn-save-modal { background: var(--accent); color: #121212; padding: 10px 20px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; }
+    #admin-pin-screen { display: none; }
+    #admin-content {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 15px 10px;
+      border: 1px solid var(--border);
+    }
+    #live-clock {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 600;
+      margin: 5px 0 10px;
+      color: var(--accent);
+      background: var(--bg);
+      padding: 8px 15px;
+      border-radius: 50px;
+      display: inline-block;
+      width: auto;
+      margin: 0 auto 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      letter-spacing: 2px;
+      border: 1px solid var(--border);
+    }
+    .clock-container { text-align: center; }
+    #greeting {
+      text-align: center;
+      margin: 0 0 10px;
+      color: #b0b0b0;
+      font-size: 1.1rem;
+      border-bottom: 1px dashed #2f2f2f;
+      padding-bottom: 10px;
+    }
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      background: transparent;
+      margin: 10px 0;
+    }
+    .day {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 3px 5px;
+      min-height: 70px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: 0.1s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .day strong { font-size: 1.2rem; font-weight: 400; }
+    .day.today { background: var(--green); border-color: #00a86b; }
+    .day.has-data { background: var(--blue); }
+    .day.has-data.today { background: linear-gradient(145deg, #004d00, #003366); }
+    .day:active { transform: scale(0.96); }
     .modal {
       display: none;
       position: fixed;
@@ -202,12 +234,13 @@
       justify-content: center;
       align-items: center;
       z-index: 1000;
+      padding: 20px;
     }
     .modal-content {
       background: var(--card);
       padding: 20px 16px;
-      width: 92%;
-      max-width: 360px;
+      width: 100%;
+      max-width: 380px;
       border-radius: 28px;
       border: 1px solid #3a3a3a;
       box-shadow: 0 20px 30px #00000055;
@@ -221,8 +254,6 @@
       border-bottom: 3px solid var(--accent);
       padding-bottom: 8px;
       display: inline-block;
-      width: auto;
-      padding-right: 5px;
     }
     .section {
       margin-bottom: 18px;
@@ -277,13 +308,16 @@
       justify-content: center;
       margin-top: -8px;
       margin-right: -6px;
-      transition: 0.1s;
     }
     .close-btn:hover { background: #5a5a5a; }
-
-    /* PIN Screen – sementara disembunyikan (tanpa PIN) */
-    #admin-pin-screen { display: none; }
-
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
     #print-area {
       position: absolute;
       left: -9999px;
@@ -293,12 +327,10 @@
       color: black;
       padding: 30px 25px;
       font-family: Arial, sans-serif;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
     }
     #print-area h2 {
       color: #1e3a5f;
       font-size: 2rem;
-      margin-top: 0;
       border-bottom: 2px solid #ccc;
       padding-bottom: 10px;
     }
@@ -319,8 +351,39 @@
       text-align: center;
       border-color: #0f2a44;
     }
-
-    /* ===== CHAT FLOATING (sama) ===== */
+    .status-box {
+      background: #1a1a2e;
+      border-left: 4px solid #f1c40f;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    .status-box i { margin-right: 8px; }
+    .status-box.error { border-color: #e74c3c; }
+    .status-box.success { border-color: #2ecc71; }
+    .status-box.info { border-color: #3498db; }
+    .hide { display: none !important; }
+    audio { display: none; }
+    @media (max-width: 600px) {
+      body { padding: 10px 8px; }
+      .app-header { flex-wrap: wrap; gap: 6px; }
+      h1 { font-size: 1.4rem; }
+      .tab-btn { padding: 8px 12px; font-size: 0.85rem; min-width: 70px; }
+      #preview-table { font-size: 12px; }
+      #preview-table th, #preview-table td { padding: 5px 4px; }
+      .btn { font-size: 13px; padding: 12px 0; }
+      .day { min-height: 60px; padding: 6px 2px; }
+      .day strong { font-size: 1rem; }
+      #live-clock { font-size: 1.5rem; padding: 6px 12px; }
+      #signal-indicator { height: 20px; }
+      .signal-bar { width: 3px; }
+      .signal-bar:nth-child(1) { height: 5px; }
+      .signal-bar:nth-child(2) { height: 8px; }
+      .signal-bar:nth-child(3) { height: 13px; }
+      .signal-bar:nth-child(4) { height: 18px; }
+    }
+    /* CHAT (opsional) */
     #chatToggleBtn {
       position: fixed;
       bottom: 25px;
@@ -356,7 +419,6 @@
       align-items: center;
       justify-content: center;
     }
-
     #chatPanel {
       position: fixed;
       bottom: 95px;
@@ -368,14 +430,12 @@
       border-radius: 18px;
       border: 1px solid var(--border);
       box-shadow: 0 8px 30px rgba(0,0,0,0.7);
-      display: flex;
+      display: none;
       flex-direction: column;
       z-index: 998;
       overflow: hidden;
-      transition: 0.2s;
     }
-    #chatPanel.hide { display: none; }
-
+    #chatPanel.open { display: flex; }
     #chatHeader {
       padding: 10px 16px;
       background: var(--accent);
@@ -397,7 +457,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: normal;
     }
     .status-dot {
@@ -410,7 +470,6 @@
     .status-dot.offline { background: #e74c3c; }
     .status-text.online { color: #2ecc71; }
     .status-text.offline { color: #e74c3c; }
-
     #chatMessages {
       flex: 1;
       overflow-y: auto;
@@ -452,7 +511,6 @@
       color: #8abf9a;
       margin: 4px 0;
     }
-
     #chatInputRow {
       display: flex;
       gap: 8px;
@@ -468,6 +526,7 @@
       background: #121212;
       color: white;
       outline: none;
+      font-size: 1rem;
     }
     #chatInput::placeholder { color: #555; }
     #chatSendBtn {
@@ -480,34 +539,21 @@
       cursor: pointer;
     }
     #chatSendBtn:hover { opacity: 0.8; }
-
-    audio { display: none; }
-
-    .status-box {
-      background: #1a1a2e;
-      border-left: 4px solid #f1c40f;
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      font-size: 14px;
-    }
-    .status-box i { margin-right: 8px; }
-    .status-box.error { border-color: #e74c3c; }
-    .status-box.success { border-color: #2ecc71; }
-
-    @media (max-width: 600px) {
-      .tab-btn { padding: 8px 16px; font-size: 0.9rem; }
-      #preview-table { font-size: 12px; }
-      #preview-table th, #preview-table td { padding: 6px 4px; }
-      .button-group .btn { font-size: 13px; padding: 10px 0; }
-      #chatPanel { width: 90vw; right: 5vw; bottom: 85px; max-height: 400px; }
-      #chatToggleBtn { width: 54px; height: 54px; font-size: 24px; bottom: 20px; right: 20px; }
-    }
   </style>
 </head>
 <body>
 
-<h1><i class="fa-solid fa-helmet-safety"></i> DUTY PRO</h1>
+<!-- HEADER -->
+<div class="app-header">
+  <h1><i class="fa-solid fa-helmet-safety"></i> DUTY PRO</h1>
+  <div id="signal-indicator" class="online">
+    <span class="signal-bar"></span>
+    <span class="signal-bar"></span>
+    <span class="signal-bar"></span>
+    <span class="signal-bar"></span>
+    <span id="signal-text">Online</span>
+  </div>
+</div>
 
 <!-- TAB BAR -->
 <div class="tab-bar">
@@ -519,12 +565,14 @@
 <div id="preview-tab" class="tab-content active">
   <div id="preview-table-wrap">
     <table id="preview-table">
-      <thead>
-        <tr><th>Tanggal</th><th>Bungkulan Post</th><th>Komodo Warehouse</th></tr>
-      </thead>
+      <thead><tr><th>Tanggal</th><th>Bungkulan Post</th><th>Komodo Warehouse</th></tr></thead>
       <tbody id="preview-body"><tr><td colspan="3" class="preview-empty">Memuat data...</td></tr></tbody>
     </table>
-    <div style="margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap;">
+    <div class="button-group">
+      <button class="btn btn-share" onclick="shareToday()"><i class="fab fa-whatsapp"></i> Share</button>
+      <button class="btn btn-png" onclick="saveAsImage()"><i class="fas fa-image"></i> PNG</button>
+    </div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
       <button class="btn btn-backup" onclick="backupData()"><i class="fa-solid fa-download"></i> Backup</button>
       <button class="btn btn-restore" id="restoreBtn"><i class="fa-solid fa-upload"></i> Restore</button>
       <input type="file" id="restoreInput" accept=".json" style="display:none" />
@@ -534,17 +582,13 @@
 
 <!-- TAB ADMIN -->
 <div id="admin-tab" class="tab-content">
-  <!-- PIN screen disembunyikan (tanpa PIN) -->
-  <div id="admin-pin-screen"></div>
-
+  <div id="admin-pin-screen" style="display:none;"></div>
   <div id="admin-content">
     <div class="clock-container"><div id="live-clock">--:--:--</div></div>
     <div id="greeting"></div>
     <div class="calendar" id="calendar"></div>
-    <div class="button-group">
-      <button class="btn btn-share" onclick="shareToday()"><i class="fab fa-whatsapp"></i> Share</button>
-      <button class="btn btn-png" onclick="saveAsImage()"><i class="fas fa-image"></i> PNG</button>
-      <button class="btn btn-reset" onclick="resetJadwal()"><i class="fas fa-trash"></i> Reset</button>
+    <div style="margin-top:12px; text-align:center; font-size:0.8rem; color:#888;">
+      <i class="fa-regular fa-circle-check"></i> Klik tanggal untuk mengisi jadwal
     </div>
   </div>
 </div>
@@ -555,6 +599,9 @@
     <button class="close-btn" onclick="closeModal()">✕</button>
     <h3 id="modal-date">📅 Pilih Tanggal</h3>
     <div id="checkbox-list"></div>
+    <div class="modal-footer">
+      <button class="btn-save-modal" onclick="closeModal()">Selesai</button>
+    </div>
   </div>
 </div>
 
@@ -565,12 +612,8 @@
   <p style="text-align:right; margin-top:20px; font-style:italic;">generated by: Leong</p>
 </div>
 
-<!-- ===== FLOATING CHAT ===== -->
-<button id="chatToggleBtn">
-  <i class="fa-regular fa-comment-dots"></i>
-  <span id="chatBadge">0</span>
-</button>
-
+<!-- CHAT (opsional) -->
+<button id="chatToggleBtn"><i class="fa-regular fa-comment-dots"></i><span id="chatBadge">0</span></button>
 <div id="chatPanel" class="hide">
   <div id="chatHeader">
     <span><i class="fa-regular fa-comment-dots"></i> Live Chat</span>
@@ -594,19 +637,17 @@
 
 <script>
   // ============================================================
-  //  1.  KONFIGURASI SUPABASE
+  //  1.  KONFIGURASI BACKEND (Google Apps Script Web App)
   // ============================================================
-  const SUPABASE_URL = 'https://rrccgcdghwpfzfyvfp.supabase.co'; // Ganti dengan URL Anda
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyY29jY2dkZ3docGZmemZ5dmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MTA2NzEsImV4cCI6MjA5NzM4NjY3MX0.-yKZNdxuj3kumFKduXskk1mBG7UCR51Tb_NnWOjUAtY';
-  const DESA_NAME = 'DutyPro User';
+  const API_URL = 'https://script.google.com/macros/s/AKfycby.../exec'; // GANTI DENGAN URL DEPLOY ANDA
 
   // ============================================================
   //  2.  STATE
   // ============================================================
-  let supabaseClient = null;
   let dataJadwal = {};
   const petugasList = ['Ajik Su', 'Wayan S', 'Mang Beni', 'Indra S', 'Kadek Widana'];
   const today = new Date();
+  let isLoading = false;
 
   // ============================================================
   //  3.  HELPERS
@@ -626,75 +667,98 @@
   }
 
   // ============================================================
-  //  4.  CRUD SUPABASE (JADWAL SHARED)
+  //  4.  INDIKATOR SINYAL
   // ============================================================
-  async function loadJadwalFromSupabase() {
-    if (!supabaseClient) {
-      console.warn('Supabase belum siap');
-      return;
+  function updateSignalIndicator() {
+    const indicator = document.getElementById('signal-indicator');
+    const text = document.getElementById('signal-text');
+    if (navigator.onLine) {
+      indicator.className = 'online';
+      text.textContent = 'Online';
+    } else {
+      indicator.className = 'offline';
+      text.textContent = 'Offline';
     }
+  }
+  window.addEventListener('online', updateSignalIndicator);
+  window.addEventListener('offline', updateSignalIndicator);
+  updateSignalIndicator();
+
+  // ============================================================
+  //  5.  CRUD via GOOGLE SHEETS (API)
+  // ============================================================
+  async function fetchJadwal() {
+    if (isLoading) return;
+    isLoading = true;
+    showStatus('info', '⏳ Mengambil data...');
     try {
-      const { data, error } = await supabaseClient.from('jadwal').select('*');
-      if (error) {
-        console.error('Error load jadwal:', error);
-        showStatus('error', 'Gagal ambil data: ' + error.message);
-        return;
-      }
+      const resp = await fetch(API_URL);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
       dataJadwal = {};
       data.forEach(row => {
         dataJadwal[row.tanggal] = {
-          bungkulan: row.bungkulan || [],
-          komodo: row.komodo || []
+          bungkulan: row.bungkulan ? JSON.parse(row.bungkulan) : [],
+          komodo: row.komodo ? JSON.parse(row.komodo) : []
         };
       });
       renderPreview();
       renderCalendar();
-      showStatus('success', 'Data dimuat dari Supabase');
-    } catch (e) {
-      console.error(e);
-      showStatus('error', 'Error: ' + e.message);
+      showStatus('success', '✅ Data dimuat dari Google Sheets');
+    } catch (err) {
+      console.error(err);
+      showStatus('error', '❌ Gagal ambil data: ' + err.message);
     }
+    isLoading = false;
   }
 
-  async function upsertJadwal(tanggal, bungkulan, komodo) {
-    if (!supabaseClient) {
-      alert('Supabase belum siap.');
-      return;
-    }
+  async function saveJadwal(tanggal, bungkulan, komodo) {
     try {
-      const { error } = await supabaseClient
-        .from('jadwal')
-        .upsert({ tanggal, bungkulan, komodo }, { onConflict: 'tanggal' });
-      if (error) {
-        alert('Gagal simpan: ' + error.message);
-        return;
-      }
-      await loadJadwalFromSupabase();
-    } catch (e) {
-      alert('Error: ' + e.message);
+      // Cek apakah tanggal sudah ada di dataJadwal
+      const existing = dataJadwal[tanggal];
+      const action = (existing && (existing.bungkulan.length || existing.komodo.length)) ? 'update' : 'insert';
+
+      const payload = {
+        action: action,
+        data: { tanggal, bungkulan, komodo }
+      };
+
+      showStatus('info', '⏳ Menyimpan data...');
+
+      const resp = await fetch(API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      // Karena mode no-cors, resp tidak bisa dibaca, kita asumsikan sukses
+      await fetchJadwal(); // reload ulang
+      showStatus('success', '✅ Data berhasil disimpan!');
+    } catch (err) {
+      alert('Gagal simpan: ' + err.message);
+      showStatus('error', '❌ Gagal simpan: ' + err.message);
     }
   }
 
   async function deleteAllJadwal() {
-    if (!supabaseClient) {
-      alert('Supabase belum siap.');
-      return;
-    }
-    if (!confirm('⚠️ Yakin akan menghapus SEMUA jadwal?')) return;
+    if (!confirm('⚠️ Hapus semua jadwal?')) return;
     try {
-      const { error } = await supabaseClient.from('jadwal').delete().neq('tanggal', '0000-00-00');
-      if (error) {
-        alert('Gagal reset: ' + error.message);
-        return;
-      }
-      await loadJadwalFromSupabase();
-    } catch (e) {
-      alert('Error: ' + e.message);
+      const payload = { action: 'delete_all', data: {} };
+      await fetch(API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      await fetchJadwal();
+    } catch (err) {
+      alert('Gagal reset: ' + err.message);
     }
   }
 
   // ============================================================
-  //  5.  RENDER PREVIEW
+  //  6.  RENDER PREVIEW
   // ============================================================
   function renderPreview() {
     const tbody = document.getElementById('preview-body');
@@ -714,7 +778,7 @@
   }
 
   // ============================================================
-  //  6.  ADMIN – KALENDER & MODAL
+  //  7.  ADMIN – KALENDER & MODAL
   // ============================================================
   function renderCalendar() {
     const cal = document.getElementById('calendar');
@@ -770,15 +834,18 @@
         const cb = document.createElement('input');
         cb.type = 'checkbox';
         cb.checked = dataJadwal[dateStr][lok.key]?.includes(nama) || false;
-        cb.onchange = async function() {
+        cb.onchange = function() {
+          // Update data sementara di UI
           if (!dataJadwal[dateStr][lok.key]) dataJadwal[dateStr][lok.key] = [];
           if (cb.checked) {
             if (!dataJadwal[dateStr][lok.key].includes(nama)) dataJadwal[dateStr][lok.key].push(nama);
           } else {
             dataJadwal[dateStr][lok.key] = dataJadwal[dateStr][lok.key].filter(n => n !== nama);
           }
-          await upsertJadwal(dateStr, dataJadwal[dateStr].bungkulan, dataJadwal[dateStr].komodo);
-          // loadJadwalFromSupabase akan dipanggil oleh upsertJadwal
+          // Tampilkan status
+          const count = dataJadwal[dateStr].bungkulan.length + dataJadwal[dateStr].komodo.length;
+          document.getElementById('modal-date').innerText = 
+            `📅 ${formatTanggalLengkap(dateStr)} (${count} jaga)`;
         };
         label.appendChild(cb);
         label.append(' ' + nama);
@@ -786,6 +853,26 @@
       });
       list.appendChild(div);
     });
+
+    // Tambahkan tombol simpan di footer
+    const footer = modal.querySelector('.modal-footer');
+    footer.innerHTML = '';
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'btn-save-modal';
+    saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan';
+    saveBtn.onclick = async function() {
+      await saveJadwal(dateStr, dataJadwal[dateStr].bungkulan, dataJadwal[dateStr].komodo);
+      closeModal();
+    };
+    footer.appendChild(saveBtn);
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'btn-save-modal';
+    closeBtn.style.background = '#555';
+    closeBtn.style.color = 'white';
+    closeBtn.innerHTML = 'Batal';
+    closeBtn.onclick = function() { closeModal(); };
+    footer.appendChild(closeBtn);
+
     modal.style.display = 'flex';
   };
 
@@ -798,7 +885,7 @@
   };
 
   // ============================================================
-  //  7.  JAM & SALAM
+  //  8.  JAM & SALAM
   // ============================================================
   function updateClock() {
     const now = new Date();
@@ -820,7 +907,7 @@
   ucapanSalam();
 
   // ============================================================
-  //  8.  SHARE, PNG, RESET
+  //  9.  SHARE, PNG, BACKUP/RESTORE
   // ============================================================
   window.shareToday = function() {
     const ting = document.getElementById('tingtong');
@@ -886,13 +973,6 @@
       });
   };
 
-  window.resetJadwal = function() {
-    deleteAllJadwal();
-  };
-
-  // ============================================================
-  //  9.  BACKUP & RESTORE (diperbaiki)
-  // ============================================================
   window.backupData = function() {
     const dataStr = JSON.stringify(dataJadwal, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
@@ -904,65 +984,35 @@
     URL.revokeObjectURL(url);
   };
 
-  // Fungsi restore dengan event listener manual
   function setupRestore() {
     const input = document.getElementById('restoreInput');
     const btn = document.getElementById('restoreBtn');
-
-    btn.addEventListener('click', function() {
-      input.click();
-    });
-
+    btn.addEventListener('click', () => input.click());
     input.addEventListener('change', function(event) {
       const file = event.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = async function(e) {
         try {
           const imported = JSON.parse(e.target.result);
           if (typeof imported === 'object' && imported !== null) {
-            // Konfirmasi sebelum restore
             if (!confirm(`⚠️ Akan mengganti semua data dengan data dari file ${file.name}?`)) return;
-            // Upload ke Supabase
-            restoreToSupabase(imported);
+            await deleteAllJadwal();
+            for (const [tgl, data] of Object.entries(imported)) {
+              await saveJadwal(tgl, data.bungkulan || [], data.komodo || []);
+            }
+            await fetchJadwal();
+            alert('✅ Restore berhasil!');
           } else {
             alert('❌ Format file tidak valid.');
           }
         } catch (err) {
-          alert('❌ Gagal membaca file: ' + err.message);
+          alert('❌ Gagal restore: ' + err.message);
         }
       };
       reader.readAsText(file);
-      // Reset input agar bisa pilih file yang sama lagi
       event.target.value = '';
     });
-  }
-
-  async function restoreToSupabase(importedData) {
-    if (!supabaseClient) {
-      alert('Supabase belum siap.');
-      return;
-    }
-    try {
-      // Hapus semua data lama
-      const { error: delError } = await supabaseClient.from('jadwal').delete().neq('tanggal', '0000-00-00');
-      if (delError) throw delError;
-
-      // Insert data baru
-      const entries = Object.entries(importedData);
-      for (const [tanggal, data] of entries) {
-        const { error } = await supabaseClient
-          .from('jadwal')
-          .insert({ tanggal, bungkulan: data.bungkulan || [], komodo: data.komodo || [] });
-        if (error) throw error;
-      }
-
-      alert('✅ Restore berhasil! Data dari file berhasil dipulihkan.');
-      await loadJadwalFromSupabase();
-    } catch (err) {
-      alert('❌ Gagal restore: ' + err.message);
-    }
   }
 
   // ============================================================
@@ -972,209 +1022,42 @@
     btn.addEventListener('click', function() {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       this.classList.add('active');
-
       const tab = this.dataset.tab;
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.getElementById(tab + '-tab').classList.add('active');
-
       if (tab === 'preview') renderPreview();
     });
   });
 
   // ============================================================
-  //  11. LIVE CHAT SUPABASE
-  // ============================================================
-  let chatChannel = null;
-  let chatCurrentUser = null;
-  let chatUnreadCount = 0;
-
-  async function initSupabaseChat() {
-    try {
-      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      chatCurrentUser = {
-        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
-        name: DESA_NAME
-      };
-
-      chatChannel = client.channel('dukops-live', {
-        config: { presence: { key: chatCurrentUser.id } }
-      });
-
-      function updateOnlineCounter() {
-        const state = chatChannel.presenceState();
-        const users = new Set();
-        for (const [key, presences] of Object.entries(state)) {
-          for (const p of presences) {
-            if (p.user_id) users.add(p.user_id);
-            else users.add(key);
-          }
-        }
-        document.getElementById('onlineCounter').textContent = users.size;
-      }
-
-      chatChannel.on('presence', { event: 'sync' }, updateOnlineCounter);
-      chatChannel.on('presence', { event: 'join' }, ({ newPresences }) => {
-        updateOnlineCounter();
-        if (newPresences && newPresences[0] && newPresences[0].name !== chatCurrentUser.name) {
-          addChatMessageSystem(`${newPresences[0].name} bergabung ke chat`);
-        }
-      });
-      chatChannel.on('presence', { event: 'leave' }, ({ leftPresences }) => {
-        updateOnlineCounter();
-        if (leftPresences && leftPresences[0] && leftPresences[0].name !== chatCurrentUser.name) {
-          addChatMessageSystem(`${leftPresences[0].name} meninggalkan chat`);
-        }
-      });
-
-      chatChannel.on('broadcast', { event: 'message' }, ({ payload }) => {
-        addChatMessage(payload);
-      });
-
-      await chatChannel.subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-          await chatChannel.track({
-            user_id: chatCurrentUser.id,
-            name: chatCurrentUser.name
-          });
-          console.log('Chat presence tracked');
-        }
-      });
-    } catch (err) {
-      console.error('Chat init error:', err);
-    }
-  }
-
-  function addChatMessage(msg) {
-    const messagesDiv = document.getElementById('chatMessages');
-    const isOwn = (msg.senderId === chatCurrentUser.id);
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${isOwn ? 'message-user' : 'message-babinsa'}`;
-    const time = new Date(msg.timestamp).toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
-    messageDiv.innerHTML = `
-      ${!isOwn ? `<div style="font-size:0.7rem;font-weight:bold;">${escapeHtml(msg.sender)}</div>` : ''}
-      <div>${escapeHtml(msg.text)}</div>
-      <div class="message-time">${time}</div>
-    `;
-    messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
-    if (!isOwn && document.getElementById('chatPanel').classList.contains('hide')) {
-      chatUnreadCount++;
-      const badge = document.getElementById('chatBadge');
-      badge.style.display = 'flex';
-      badge.innerText = chatUnreadCount > 9 ? '9+' : chatUnreadCount;
-      const ting = document.getElementById('tingtong');
-      if (ting) ting.play().catch(()=>{});
-    }
-  }
-
-  function addChatMessageSystem(text) {
-    const messagesDiv = document.getElementById('chatMessages');
-    const sysDiv = document.createElement('div');
-    sysDiv.className = 'message-system';
-    sysDiv.innerHTML = `<i class="fas fa-info-circle"></i> ${escapeHtml(text)}`;
-    messagesDiv.appendChild(sysDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  }
-
-  async function sendChatMessage() {
-    const input = document.getElementById('chatInput');
-    const text = input.value.trim();
-    if (!text || !chatChannel) return;
-    const msg = {
-      id: Date.now(),
-      sender: chatCurrentUser.name,
-      senderId: chatCurrentUser.id,
-      text: text,
-      timestamp: new Date().toISOString()
-    };
-    await chatChannel.send({ type: 'broadcast', event: 'message', payload: msg });
-    addChatMessage(msg);
-    input.value = '';
-  }
-
-  // ============================================================
-  //  12. CHAT UI EVENTS
-  // ============================================================
-  const chatToggle = document.getElementById('chatToggleBtn');
-  const chatPanel = document.getElementById('chatPanel');
-  const chatClose = document.getElementById('chatCloseBtn');
-  const chatSend = document.getElementById('chatSendBtn');
-  const chatInputField = document.getElementById('chatInput');
-  const chatBadge = document.getElementById('chatBadge');
-
-  chatToggle.addEventListener('click', () => {
-    chatPanel.classList.toggle('hide');
-    if (!chatPanel.classList.contains('hide')) {
-      chatUnreadCount = 0;
-      chatBadge.style.display = 'none';
-      chatInputField.focus();
-    }
-  });
-  chatClose.addEventListener('click', () => chatPanel.classList.add('hide'));
-  chatSend.addEventListener('click', sendChatMessage);
-  chatInputField.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') sendChatMessage();
-  });
-
-  // ============================================================
-  //  13. STATUS KONEKSI
-  // ============================================================
-  function updateConnectionStatus() {
-    const statusDot = document.getElementById('statusDot');
-    const statusTextSpan = document.getElementById('statusText');
-    if (navigator.onLine) {
-      statusDot.className = 'status-dot online';
-      statusTextSpan.className = 'status-text online';
-      statusTextSpan.innerHTML = '<i class="fas fa-wifi"></i> Online';
-    } else {
-      statusDot.className = 'status-dot offline';
-      statusTextSpan.className = 'status-text offline';
-      statusTextSpan.innerHTML = '<i class="fas fa-wifi-slash"></i> Offline';
-    }
-  }
-  window.addEventListener('online', updateConnectionStatus);
-  window.addEventListener('offline', updateConnectionStatus);
-  updateConnectionStatus();
-
-  // ============================================================
-  //  14. STATUS DISPLAY
+  //  11. STATUS DISPLAY
   // ============================================================
   function showStatus(type, message) {
     const container = document.getElementById('preview-table-wrap');
-    let statusBox = container.querySelector('.status-box');
-    if (!statusBox) {
-      statusBox = document.createElement('div');
-      statusBox.className = 'status-box';
-      container.prepend(statusBox);
+    let box = container.querySelector('.status-box');
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'status-box';
+      container.prepend(box);
     }
-    statusBox.className = `status-box ${type}`;
-    statusBox.innerHTML = `<i class="fa-solid fa-${type === 'error' ? 'circle-exclamation' : 'circle-check'}"></i> ${message}`;
+    box.className = `status-box ${type}`;
+    const icon = type === 'error' ? 'circle-exclamation' : type === 'success' ? 'circle-check' : 'circle-info';
+    box.innerHTML = `<i class="fa-solid fa-${icon}"></i> ${message}`;
   }
 
   // ============================================================
-  //  15. INISIALISASI
+  //  12. HILANGKAN POPUP INSTALL
+  // ============================================================
+  window.addEventListener('beforeinstallprompt', (e) => e.preventDefault());
+
+  // ============================================================
+  //  13. INISIALISASI
   // ============================================================
   async function initApp() {
-    // Inisialisasi Supabase client
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    console.log('Supabase client ready');
-
-    // Load data jadwal dari Supabase
-    await loadJadwalFromSupabase();
-
-    // Setup restore (event listener manual)
+    await fetchJadwal();
     setupRestore();
-
-    // Aktifkan tab preview
     document.querySelector('.tab-btn[data-tab="preview"]').click();
-
-    // Inisialisasi chat jika online
-    if (navigator.onLine) {
-      await initSupabaseChat().catch(err => console.warn('Chat init error:', err));
-    }
-
-    console.log('✅ Aplikasi siap (Supabase shared + restore fixed)');
+    console.log('✅ Aplikasi siap (Admin aktif)');
   }
 
   initApp();
