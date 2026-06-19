@@ -15,7 +15,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
-    /* ===== CSS SAMA SEPERTI SEBELUMNYA (tidak diubah) ===== */
+    /* ===== CSS (sama seperti sebelumnya, tidak diubah) ===== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #121212;
@@ -600,7 +600,8 @@
     <h3 id="modal-date">📅 Pilih Tanggal</h3>
     <div id="checkbox-list"></div>
     <div class="modal-footer">
-      <button class="btn-save-modal" onclick="closeModal()">Selesai</button>
+      <button class="btn-save-modal" id="modalSaveBtn"><i class="fa-solid fa-floppy-disk"></i> Simpan</button>
+      <button class="btn-save-modal" style="background:#555;color:white;" onclick="closeModal()">Batal</button>
     </div>
   </div>
 </div>
@@ -648,6 +649,7 @@
   const petugasList = ['Ajik Su', 'Wayan S', 'Mang Beni', 'Indra S', 'Kadek Widana'];
   const today = new Date();
   let isLoading = false;
+  let currentDate = null; // tanggal yang sedang di-edit
 
   // ============================================================
   //  3.  HELPERS
@@ -714,7 +716,7 @@
 
   async function saveJadwal(tanggal, bungkulan, komodo) {
     try {
-      // Cek apakah tanggal sudah ada di dataJadwal
+      // Cek apakah tanggal sudah ada
       const existing = dataJadwal[tanggal];
       const action = (existing && (existing.bungkulan.length || existing.komodo.length)) ? 'update' : 'insert';
 
@@ -724,18 +726,20 @@
       };
 
       showStatus('info', '⏳ Menyimpan data...');
-
       const resp = await fetch(API_URL, {
         method: 'POST',
-        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
-      // Karena mode no-cors, resp tidak bisa dibaca, kita asumsikan sukses
-      await fetchJadwal(); // reload ulang
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const result = await resp.json();
+      if (result.status !== 'ok') throw new Error(result.message);
+
+      await fetchJadwal();
       showStatus('success', '✅ Data berhasil disimpan!');
     } catch (err) {
+      console.error(err);
       alert('Gagal simpan: ' + err.message);
       showStatus('error', '❌ Gagal simpan: ' + err.message);
     }
@@ -745,13 +749,16 @@
     if (!confirm('⚠️ Hapus semua jadwal?')) return;
     try {
       const payload = { action: 'delete_all', data: {} };
-      await fetch(API_URL, {
+      const resp = await fetch(API_URL, {
         method: 'POST',
-        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const result = await resp.json();
+      if (result.status !== 'ok') throw new Error(result.message);
       await fetchJadwal();
+      showStatus('success', '✅ Semua data telah dihapus');
     } catch (err) {
       alert('Gagal reset: ' + err.message);
     }
@@ -812,6 +819,7 @@
   }
 
   window.openModal = function(dateStr) {
+    currentDate = dateStr;
     const modal = document.getElementById('modal');
     document.getElementById('modal-date').innerText = formatTanggalLengkap(dateStr);
     if (!dataJadwal[dateStr]) dataJadwal[dateStr] = { bungkulan: [], komodo: [] };
@@ -835,14 +843,13 @@
         cb.type = 'checkbox';
         cb.checked = dataJadwal[dateStr][lok.key]?.includes(nama) || false;
         cb.onchange = function() {
-          // Update data sementara di UI
           if (!dataJadwal[dateStr][lok.key]) dataJadwal[dateStr][lok.key] = [];
           if (cb.checked) {
             if (!dataJadwal[dateStr][lok.key].includes(nama)) dataJadwal[dateStr][lok.key].push(nama);
           } else {
             dataJadwal[dateStr][lok.key] = dataJadwal[dateStr][lok.key].filter(n => n !== nama);
           }
-          // Tampilkan status
+          // Update judul modal dengan jumlah jaga
           const count = dataJadwal[dateStr].bungkulan.length + dataJadwal[dateStr].komodo.length;
           document.getElementById('modal-date').innerText = 
             `📅 ${formatTanggalLengkap(dateStr)} (${count} jaga)`;
@@ -854,24 +861,13 @@
       list.appendChild(div);
     });
 
-    // Tambahkan tombol simpan di footer
-    const footer = modal.querySelector('.modal-footer');
-    footer.innerHTML = '';
-    const saveBtn = document.createElement('button');
-    saveBtn.className = 'btn-save-modal';
-    saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan';
+    // Set tombol simpan
+    const saveBtn = document.getElementById('modalSaveBtn');
     saveBtn.onclick = async function() {
-      await saveJadwal(dateStr, dataJadwal[dateStr].bungkulan, dataJadwal[dateStr].komodo);
+      const data = dataJadwal[currentDate];
+      await saveJadwal(currentDate, data.bungkulan, data.komodo);
       closeModal();
     };
-    footer.appendChild(saveBtn);
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'btn-save-modal';
-    closeBtn.style.background = '#555';
-    closeBtn.style.color = 'white';
-    closeBtn.innerHTML = 'Batal';
-    closeBtn.onclick = function() { closeModal(); };
-    footer.appendChild(closeBtn);
 
     modal.style.display = 'flex';
   };
@@ -1057,7 +1053,7 @@
     await fetchJadwal();
     setupRestore();
     document.querySelector('.tab-btn[data-tab="preview"]').click();
-    console.log('✅ Aplikasi siap (Admin aktif)');
+    console.log('✅ Aplikasi siap (Admin aktif dengan CORS)');
   }
 
   initApp();
