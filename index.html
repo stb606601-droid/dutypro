@@ -13,7 +13,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
   <link rel="manifest" href="manifest.json" />
 
-  <!-- ===== CSS EKSTERNAL (UTAMA) ===== -->
+  <!-- ===== CSS ===== -->
   <link rel="stylesheet" href="css/style.css" />
 
   <!-- ===== ICONS ===== -->
@@ -32,31 +32,18 @@
   <!-- ===== SUPABASE ===== -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- ===== HTML2CANVAS (PNG) & HTML2PDF ===== -->
+  <!-- ===== HTML2CANVAS & HTML2PDF ===== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- ===== AOS ===== -->
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
 
-  <!-- ===== HAPUS KONFLIK CSS DARI BOOTSTRAP/BULMA ===== -->
   <style>
-    /* Reset tambahan untuk menghilangkan konflik */
+    /* Reset tambahan */
     .container, .container-fluid, .row, .col {
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-      margin-left: 0 !important;
-      margin-right: 0 !important;
-    }
-    .btn {
-      border-radius: 40px !important;
-      font-family: inherit !important;
-    }
-    select, input {
-      font-family: inherit !important;
-    }
-    .modal-content {
-      background: #1e1e1e !important;
+      padding: 0 !important;
+      margin: 0 !important;
     }
   </style>
 </head>
@@ -79,13 +66,14 @@
   <button class="tab-btn active" data-tab="preview"><i class="fa-regular fa-eye"></i> Preview</button>
   <button class="tab-btn" data-tab="admin"><i class="fa-solid fa-user-shield"></i> Admin</button>
   <button class="tab-btn" data-tab="stats"><i class="fa-solid fa-chart-bar"></i> Statistik</button>
+  <button class="tab-btn" data-tab="settings"><i class="fa-solid fa-gear"></i> Setting</button>
 </div>
 
 <!-- ===== TAB PREVIEW ===== -->
 <div id="preview-tab" class="tab-content active">
   <div id="preview-table-wrap" data-aos="fade-up">
     <table id="preview-table">
-      <thead><tr><th>Tanggal</th><th>Bungkulan Post</th><th>Komodo Warehouse</th></tr></thead>
+      <thead><tr><th>Tanggal</th><th id="header-bungkulan">Bungkulan Post</th><th id="header-komodo">Komodo Warehouse</th></tr></thead>
       <tbody id="preview-body"><tr><td colspan="3" class="preview-empty">Memuat data...</td></tr></tbody>
     </table>
     <div class="button-group">
@@ -98,7 +86,6 @@
 
 <!-- ===== TAB ADMIN ===== -->
 <div id="admin-tab" class="tab-content">
-  <!-- PIN Screen -->
   <div id="admin-pin-screen">
     <i class="fa-solid fa-lock"></i>
     <p>Masukkan PIN untuk mengakses Admin</p>
@@ -108,27 +95,19 @@
     <p id="pin-error">PIN salah, coba lagi.</p>
   </div>
 
-  <!-- Admin Content -->
   <div id="admin-content" style="display:none;" data-aos="fade-up">
     <div class="clock-container"><div id="live-clock">--:--:--</div></div>
     <div id="greeting"></div>
 
-    <!-- Pilih Bulan & Tahun -->
     <div class="admin-controls">
       <label><i class="fa-regular fa-calendar"></i> Bulan:
         <select id="month-selector">
-          <option value="0">Januari</option>
-          <option value="1">Februari</option>
-          <option value="2">Maret</option>
-          <option value="3">April</option>
-          <option value="4">Mei</option>
-          <option value="5">Juni</option>
-          <option value="6">Juli</option>
-          <option value="7">Agustus</option>
-          <option value="8">September</option>
-          <option value="9">Oktober</option>
-          <option value="10">November</option>
-          <option value="11">Desember</option>
+          <option value="0">Januari</option><option value="1">Februari</option>
+          <option value="2">Maret</option><option value="3">April</option>
+          <option value="4">Mei</option><option value="5">Juni</option>
+          <option value="6">Juli</option><option value="7">Agustus</option>
+          <option value="8">September</option><option value="9">Oktober</option>
+          <option value="10">November</option><option value="11">Desember</option>
         </select>
       </label>
       <label><i class="fa-regular fa-calendar"></i> Tahun:
@@ -163,21 +142,46 @@
   </div>
 </div>
 
+<!-- ===== TAB SETTING ===== -->
+<div id="settings-tab" class="tab-content">
+  <div class="settings-section">
+    <h3><i class="fa-solid fa-users"></i> Daftar Petugas Jaga</h3>
+    <div id="petugas-list"></div>
+    <div class="settings-item" style="margin-top:8px;">
+      <input type="text" id="new-petugas-input" placeholder="Nama petugas baru..." style="flex:1;min-width:120px;padding:8px 14px;border-radius:30px;border:1px solid var(--border);background:var(--bg);color:white;font-size:0.95rem;outline:none;" />
+      <button class="btn-sm btn-sm-add" onclick="addSettingItem('petugas')">
+        <i class="fas fa-plus"></i> Tambah
+      </button>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3><i class="fa-solid fa-location-dot"></i> Jenis Pos / Jaga</h3>
+    <div id="jenis-list"></div>
+    <div class="settings-item" style="margin-top:8px;">
+      <input type="text" id="new-jenis-input" placeholder="Jenis pos baru..." style="flex:1;min-width:120px;padding:8px 14px;border-radius:30px;border:1px solid var(--border);background:var(--bg);color:white;font-size:0.95rem;outline:none;" />
+      <button class="btn-sm btn-sm-add" onclick="addSettingItem('jenis')">
+        <i class="fas fa-plus"></i> Tambah
+      </button>
+    </div>
+  </div>
+
+  <div class="settings-actions">
+    <button class="btn btn-warning" onclick="saveSettingChanges()">
+      <i class="fas fa-save"></i> Simpan Perubahan
+    </button>
+    <button class="btn btn-png" onclick="loadSettings();Swal.fire('Berhasil','Data dimuat ulang dari Supabase','success');">
+      <i class="fas fa-sync"></i> Muat Ulang
+    </button>
+  </div>
+</div>
+
 <!-- ===== MODAL ===== -->
 <div class="modal" id="modal">
   <div class="modal-content">
     <button class="close-btn" onclick="closeModal()">✕</button>
     <h3 id="modal-date">📅 Pilih Tanggal</h3>
-    <div class="modal-grid" id="modal-grid">
-      <div class="modal-col blue" id="col-bungkulan">
-        <h4><i class="fas fa-shield-halved" style="color:#2a7faa;"></i> BUNGKULAN POST</h4>
-        <div id="bungkulan-list"></div>
-      </div>
-      <div class="modal-col green" id="col-komodo">
-        <h4><i class="fas fa-dragon" style="color:#2ecc71;"></i> KOMODO WAREHOUSE</h4>
-        <div id="komodo-list"></div>
-      </div>
-    </div>
+    <div class="modal-grid" id="modal-grid"></div>
     <div class="modal-footer">
       <button class="btn-save-modal" style="background:#555;color:white;" onclick="closeModal()">Batal</button>
       <button class="btn-save-modal" id="modal-save-btn"><i class="fa-solid fa-floppy-disk"></i> Simpan</button>
@@ -188,7 +192,7 @@
 <!-- ===== PRINT AREA ===== -->
 <div id="print-area">
   <h2>🪖 DUTY SCHEDULE</h2>
-  <div class="sub-title">Daftar Jaga Pos Bungkulan &amp; Komodo Warehouse</div>
+  <div class="sub-title">Daftar Jaga Pos</div>
   <table id="print-table"></table>
   <div class="footer">generated by: Leong</div>
 </div>
@@ -197,650 +201,7 @@
   <source src="https://notificationsounds.com/storage/sounds/file-sounds-1157-ting-tong.mp3" type="audio/mpeg" />
 </audio>
 
-<script>
-  // ============================================================
-  //  🔐 KONFIGURASI SUPABASE
-  // ============================================================
-  const SUPABASE_URL = 'https://afbqoyqzkkjwuncgrkys.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmYnFveXF6a2tqd3VuY2dya3lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NTY3OTEsImV4cCI6MjA5NzQzMjc5MX0.Dt4RX8sYL7rCY11-5UG-P0f15FIWwXmSuQcazbtK0sg';
-
-  // ============================================================
-  //  PIN ADMIN
-  // ============================================================
-  const ADMIN_PIN = '6600';
-
-  // ============================================================
-  //  STATE
-  // ============================================================
-  let dataJadwal = {};
-  let isAdmin = false;
-  const petugasList = ['Ajik Su', 'Wayan S', 'Mang Beni', 'Indra S', 'Kadek Widana'];
-  const now = new Date();
-  let currentMonth = now.getMonth();
-  let currentYear = now.getFullYear();
-  let isLoading = false;
-  let supabaseClient = null;
-  let chartInstance = null;
-
-  // ============================================================
-  //  HELPERS
-  // ============================================================
-  function pad(n) { return n.toString().padStart(2, '0'); }
-  function formatDate(d) { return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
-  function formatTanggalLengkap(t) {
-    const d = new Date(t + 'T12:00:00');
-    const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-    const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-    return `${hari[d.getDay()]}, ${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}`;
-  }
-
-  // ============================================================
-  //  INDIKATOR SINYAL
-  // ============================================================
-  function updateSignalIndicator() {
-    const indicator = document.getElementById('signal-indicator');
-    const text = document.getElementById('signal-text');
-    if (navigator.onLine) {
-      indicator.className = 'online';
-      text.textContent = 'Online';
-    } else {
-      indicator.className = 'offline';
-      text.textContent = 'Offline';
-    }
-  }
-  window.addEventListener('online', updateSignalIndicator);
-  window.addEventListener('offline', updateSignalIndicator);
-  updateSignalIndicator();
-
-  // ============================================================
-  //  SUPABASE CLIENT
-  // ============================================================
-  function getSupabase() {
-    if (!supabaseClient) {
-      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    }
-    return supabaseClient;
-  }
-
-  // ============================================================
-  //  CRUD SUPABASE
-  // ============================================================
-  async function fetchJadwal() {
-    if (isLoading) return;
-    isLoading = true;
-    showStatus('info', '⏳ Mengambil data...');
-    try {
-      const client = getSupabase();
-      const { data, error } = await client.from('jadwal').select('*');
-      if (error) throw error;
-      dataJadwal = {};
-      data.forEach(row => {
-        dataJadwal[row.tanggal] = {
-          bungkulan: row.bungkulan || [],
-          komodo: row.komodo || []
-        };
-      });
-      renderPreview();
-      if (isAdmin) renderCalendar(currentMonth, currentYear);
-      updateStats();
-      showStatus('success', '✅ Data dimuat dari Supabase');
-    } catch (err) {
-      console.error(err);
-      showStatus('error', '❌ Gagal ambil data: ' + err.message);
-    }
-    isLoading = false;
-  }
-
-  async function saveJadwal(tanggal, bungkulan, komodo) {
-    try {
-      const client = getSupabase();
-      const { error } = await client
-        .from('jadwal')
-        .upsert({ tanggal, bungkulan, komodo }, { onConflict: 'tanggal' });
-      if (error) throw error;
-      Swal.fire({
-        icon: 'success',
-        title: 'Berhasil!',
-        text: 'Jadwal berhasil disimpan ke Supabase',
-        timer: 1500,
-        showConfirmButton: false
-      });
-      await fetchJadwal();
-    } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Gagal!',
-        text: err.message
-      });
-    }
-  }
-
-  // ============================================================
-  //  AUTO DELETE EXPIRED
-  // ============================================================
-  function autoDeleteExpired() {
-    const todayStr = formatDate(new Date());
-    let hasDeleted = false;
-    for (const [tgl] of Object.entries(dataJadwal)) {
-      if (tgl < todayStr) {
-        delete dataJadwal[tgl];
-        hasDeleted = true;
-      }
-    }
-    if (hasDeleted) {
-      renderPreview();
-      if (isAdmin) renderCalendar(currentMonth, currentYear);
-    }
-  }
-
-  // ============================================================
-  //  RENDER PREVIEW
-  // ============================================================
-  function renderPreview() {
-    const tbody = document.getElementById('preview-body');
-    tbody.innerHTML = '';
-    const entries = Object.entries(dataJadwal).sort((a,b) => a[0].localeCompare(b[0]));
-    if (entries.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="3" class="preview-empty">Belum ada jadwal.</td></tr>`;
-      return;
-    }
-    entries.forEach(([tgl, data]) => {
-      const bungkulan = data.bungkulan?.length ? data.bungkulan.map(n => '🪖 ' + n).join('<br>') : '—';
-      const komodo = data.komodo?.length ? data.komodo.map(n => '🪖 ' + n).join('<br>') : '—';
-      const row = document.createElement('tr');
-      row.innerHTML = `<td>${formatTanggalLengkap(tgl)}</td><td>${bungkulan}</td><td>${komodo}</td>`;
-      tbody.appendChild(row);
-    });
-  }
-
-  // ============================================================
-  //  KALENDER (ADMIN) - Dengan Bulan & Tahun
-  // ============================================================
-  function renderCalendar(month, year) {
-    const cal = document.getElementById('calendar');
-    if (!cal) return;
-    cal.innerHTML = '';
-
-    const days = new Date(year, month + 1, 0).getDate();
-    const firstDay = new Date(year, month, 1).getDay();
-    const namaHari = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-
-    for (let i = 0; i < 7; i++) {
-      const header = document.createElement('div');
-      header.className = 'calendar-header';
-      if (i === 0) header.classList.add('minggu');
-      header.textContent = namaHari[i];
-      cal.appendChild(header);
-    }
-
-    for (let i = 0; i < firstDay; i++) {
-      const empty = document.createElement('div');
-      empty.style.cssText = 'background:transparent;border:none;box-shadow:none;cursor:default;';
-      cal.appendChild(empty);
-    }
-
-    const today = new Date();
-    for (let d = 1; d <= days; d++) {
-      const dateStr = `${year}-${pad(month+1)}-${pad(d)}`;
-      const el = document.createElement('div');
-      el.className = 'day';
-
-      const dateObj = new Date(year, month, d);
-      if (dateObj.getDay() === 0) el.classList.add('minggu');
-
-      if (dateStr === formatDate(today)) el.classList.add('today');
-
-      const hasData = dataJadwal[dateStr] &&
-        ((dataJadwal[dateStr].bungkulan?.length || 0) + (dataJadwal[dateStr].komodo?.length || 0) > 0);
-      if (hasData) el.classList.add('has-data');
-
-      el.innerHTML = `<strong>${d}</strong>`;
-      if (hasData) {
-        const count = (dataJadwal[dateStr].bungkulan?.length || 0) + (dataJadwal[dateStr].komodo?.length || 0);
-        el.innerHTML += `<span style="font-size:10px;opacity:0.9;margin-top:2px;">${count} jaga</span>`;
-      }
-
-      el.onclick = () => openModal(dateStr);
-      cal.appendChild(el);
-    }
-
-    const bulanNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-    document.getElementById('greeting').innerText = `📅 ${bulanNames[month]} ${year}`;
-  }
-
-  // ============================================================
-  //  MODAL
-  // ============================================================
-  window.openModal = function(dateStr) {
-    if (!isAdmin) {
-      Swal.fire('Akses Ditolak', 'Anda harus login sebagai admin terlebih dahulu.', 'warning');
-      return;
-    }
-    const modal = document.getElementById('modal');
-    document.getElementById('modal-date').innerText = '📅 ' + formatTanggalLengkap(dateStr);
-    if (!dataJadwal[dateStr]) dataJadwal[dateStr] = { bungkulan: [], komodo: [] };
-
-    const bungkulanList = document.getElementById('bungkulan-list');
-    bungkulanList.innerHTML = '';
-    petugasList.forEach(nama => {
-      const label = document.createElement('label');
-      const cb = document.createElement('input');
-      cb.type = 'checkbox';
-      cb.checked = dataJadwal[dateStr].bungkulan.includes(nama);
-      cb.dataset.nama = nama;
-      cb.dataset.lokasi = 'bungkulan';
-      label.appendChild(cb);
-      label.append(' ' + nama);
-      bungkulanList.appendChild(label);
-    });
-
-    const komodoList = document.getElementById('komodo-list');
-    komodoList.innerHTML = '';
-    petugasList.forEach(nama => {
-      const label = document.createElement('label');
-      const cb = document.createElement('input');
-      cb.type = 'checkbox';
-      cb.checked = dataJadwal[dateStr].komodo.includes(nama);
-      cb.dataset.nama = nama;
-      cb.dataset.lokasi = 'komodo';
-      label.appendChild(cb);
-      label.append(' ' + nama);
-      komodoList.appendChild(label);
-    });
-
-    const saveBtn = document.getElementById('modal-save-btn');
-    saveBtn.onclick = async function() {
-      const bungkulan = [];
-      const komodo = [];
-      document.querySelectorAll('#bungkulan-list input[type="checkbox"]:checked').forEach(cb => {
-        bungkulan.push(cb.dataset.nama);
-      });
-      document.querySelectorAll('#komodo-list input[type="checkbox"]:checked').forEach(cb => {
-        komodo.push(cb.dataset.nama);
-      });
-      await saveJadwal(dateStr, bungkulan, komodo);
-      closeModal();
-    };
-    modal.style.display = 'flex';
-  };
-
-  window.closeModal = function() {
-    document.getElementById('modal').style.display = 'none';
-  };
-  window.onclick = function(e) {
-    const modal = document.getElementById('modal');
-    if (e.target === modal) closeModal();
-  };
-
-  // ============================================================
-  //  ADMIN PIN LOGIN
-  // ============================================================
-  document.getElementById('pin-login-btn').addEventListener('click', function() {
-    const pin = document.getElementById('pin-input').value;
-    if (pin === ADMIN_PIN) {
-      isAdmin = true;
-      document.getElementById('admin-pin-screen').style.display = 'none';
-      document.getElementById('admin-content').style.display = 'block';
-      renderCalendar(currentMonth, currentYear);
-      document.getElementById('pin-error').style.display = 'none';
-    } else {
-      document.getElementById('pin-error').style.display = 'block';
-    }
-  });
-  document.getElementById('pin-input').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') document.getElementById('pin-login-btn').click();
-  });
-
-  // ============================================================
-  //  MONTH / YEAR SELECTOR
-  // ============================================================
-  function populateYearSelector() {
-    const sel = document.getElementById('year-selector');
-    sel.innerHTML = '';
-    const currentYear = new Date().getFullYear();
-    for (let y = currentYear - 5; y <= currentYear + 1; y++) {
-      const opt = document.createElement('option');
-      opt.value = y;
-      opt.textContent = y;
-      if (y === currentYear) opt.selected = true;
-      sel.appendChild(opt);
-    }
-  }
-
-  function setCurrentMonth() {
-    const monthSelector = document.getElementById('month-selector');
-    monthSelector.value = new Date().getMonth();
-  }
-
-  document.getElementById('btn-go-month').addEventListener('click', function() {
-    const month = parseInt(document.getElementById('month-selector').value);
-    const year = parseInt(document.getElementById('year-selector').value);
-    currentMonth = month;
-    currentYear = year;
-    if (isAdmin) renderCalendar(month, year);
-  });
-
-  document.getElementById('month-selector').addEventListener('change', function() {
-    document.getElementById('btn-go-month').click();
-  });
-  document.getElementById('year-selector').addEventListener('change', function() {
-    document.getElementById('btn-go-month').click();
-  });
-
-  // ============================================================
-  //  JAM
-  // ============================================================
-  function updateClock() {
-    const now = new Date();
-    document.getElementById('live-clock').innerText =
-      `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-  }
-  setInterval(updateClock, 1000);
-  updateClock();
-
-  // ============================================================
-  //  SHARE WHATSAPP
-  // ============================================================
-  window.shareToday = function() {
-    const ting = document.getElementById('tingtong');
-    if (ting) ting.play().catch(()=>{});
-    const dateStr = formatDate(new Date());
-    const data = dataJadwal[dateStr];
-    if (!data || (!data.bungkulan?.length && !data.komodo?.length)) {
-      Swal.fire('Info', 'Belum ada jadwal untuk hari ini.', 'info');
-      return;
-    }
-    const teks =
-      `🪖 *DUTY SCHEDULE*\n━━━━━━━━━━━━━━━━\n📅 ${formatTanggalLengkap(dateStr)}\n\n` +
-      `🔵 *BUNGKULAN POST*\n${(data.bungkulan?.length ? data.bungkulan.map((n,i)=>`${i+1}. 🪖 ${n}`).join('\n') : '   -')}` +
-      `\n\n🟢 *KOMODO WAREHOUSE*\n${(data.komodo?.length ? data.komodo.map((n,i)=>`${i+1}. 🪖 ${n}`).join('\n') : '   -')}` +
-      `\n\n━━━━━━━━━━━━━━━━\n#DutyToday`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(teks)}`, '_blank');
-  };
-
-  // ============================================================
-  //  EXPORT PNG
-  // ============================================================
-  window.exportPNG = function() {
-    const printArea = document.getElementById('print-area');
-    const table = document.getElementById('print-table');
-    buildPrintTable(table);
-    printArea.style.position = 'fixed';
-    printArea.style.left = '0';
-    printArea.style.top = '0';
-    printArea.style.zIndex = '9999';
-    printArea.style.background = 'white';
-    html2canvas(printArea, { scale: 2, backgroundColor: '#ffffff', logging: false, allowTaint: false, useCORS: true })
-      .then(canvas => {
-        printArea.style.position = 'absolute';
-        printArea.style.left = '-9999px';
-        const link = document.createElement('a');
-        link.download = `DutySchedule-${formatDate(new Date())}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      })
-      .catch(err => {
-        Swal.fire('Error!', 'Gagal export PNG: ' + err, 'error');
-        printArea.style.position = 'absolute';
-        printArea.style.left = '-9999px';
-      });
-  };
-
-  // ============================================================
-  //  BUILD PRINT TABLE
-  // ============================================================
-  function buildPrintTable(table) {
-    table.innerHTML = '';
-    const headerRow = document.createElement('tr');
-    headerRow.innerHTML = `
-      <th style="width:35%;">Tanggal</th>
-      <th style="width:32%;"><span class="icon-bungkulan">🔵</span> Bungkulan Post</th>
-      <th style="width:33%;"><span class="icon-komodo">🟢</span> Komodo Warehouse</th>
-    `;
-    table.appendChild(headerRow);
-
-    const entries = Object.entries(dataJadwal).sort((a, b) => a[0].localeCompare(b[0]));
-    if (entries.length === 0) {
-      const row = document.createElement('tr');
-      row.innerHTML = `<td colspan="3" style="text-align:center;padding:20px;font-style:italic;">Belum ada data jadwal</td>`;
-      table.appendChild(row);
-      return;
-    }
-    entries.forEach(([tgl, data]) => {
-      const bungkulan = data.bungkulan?.length ? data.bungkulan.map(n => '🪖 ' + n).join('<br>') : '—';
-      const komodo = data.komodo?.length ? data.komodo.map(n => '🪖 ' + n).join('<br>') : '—';
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${formatTanggalLengkap(tgl)}</td>
-        <td>${bungkulan}</td>
-        <td>${komodo}</td>
-      `;
-      table.appendChild(row);
-    });
-  }
-
-  // ============================================================
-  //  EXPORT PDF
-  // ============================================================
-  window.exportPDF = function() {
-    const entries = Object.entries(dataJadwal);
-    if (entries.length === 0) {
-      Swal.fire('Info', 'Belum ada data jadwal untuk diexport.', 'info');
-      return;
-    }
-
-    const printArea = document.getElementById('print-area');
-    const table = document.getElementById('print-table');
-    buildPrintTable(table);
-
-    printArea.style.position = 'fixed';
-    printArea.style.left = '0';
-    printArea.style.top = '0';
-    printArea.style.zIndex = '9999';
-    printArea.style.background = 'white';
-    printArea.style.width = '794px';
-    printArea.style.padding = '30px 35px';
-
-    const opt = {
-      margin: [15, 15, 15, 15],
-      filename: `DutySchedule-${formatDate(new Date())}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        logging: false,
-        allowTaint: false,
-        useCORS: true,
-        width: 794,
-        height: printArea.scrollHeight + 50
-      },
-      jsPDF: {
-        unit: 'mm',
-        format: 'a4',
-        orientation: 'portrait'
-      },
-      pagebreak: { mode: 'avoid-all' }
-    };
-
-    Swal.fire({
-      title: 'Membuat PDF...',
-      text: 'Mohon tunggu sebentar',
-      allowOutsideClick: false,
-      didOpen: () => { Swal.showLoading(); }
-    });
-
-    html2pdf()
-      .set(opt)
-      .from(printArea)
-      .save()
-      .then(() => {
-        printArea.style.position = 'absolute';
-        printArea.style.left = '-9999px';
-        Swal.close();
-        Swal.fire({
-          icon: 'success',
-          title: 'Berhasil!',
-          text: 'PDF berhasil diunduh',
-          timer: 1500,
-          showConfirmButton: false
-        });
-      })
-      .catch((err) => {
-        printArea.style.position = 'absolute';
-        printArea.style.left = '-9999px';
-        Swal.close();
-        Swal.fire('Error!', 'Gagal export PDF: ' + err.message, 'error');
-        console.error('PDF Error:', err);
-      });
-  };
-
-  // ============================================================
-  //  STATISTIK
-  // ============================================================
-  function updateStats() {
-    const now = new Date();
-    const bulan = now.getMonth();
-    const tahun = now.getFullYear();
-    let totalBungkulan = 0, totalKomodo = 0, totalHari = 0;
-
-    Object.entries(dataJadwal).forEach(([tgl, data]) => {
-      const d = new Date(tgl + 'T12:00:00');
-      if (d.getMonth() === bulan && d.getFullYear() === tahun) {
-        totalHari++;
-        totalBungkulan += data.bungkulan?.length || 0;
-        totalKomodo += data.komodo?.length || 0;
-      }
-    });
-
-    const rekapEl = document.getElementById('rekap-bulan');
-    if (rekapEl) {
-      rekapEl.innerHTML = `
-        <div class="flex justify-center gap-6 flex-wrap">
-          <span><i class="fa-solid fa-calendar-day text-blue-400"></i> Hari: <strong>${totalHari}</strong></span>
-          <span><i class="fa-solid fa-shield-halved text-blue-400"></i> Bungkulan: <strong>${totalBungkulan}</strong></span>
-          <span><i class="fa-solid fa-dragon text-green-400"></i> Komodo: <strong>${totalKomodo}</strong></span>
-          <span><i class="fa-solid fa-users text-yellow-400"></i> Total: <strong>${totalBungkulan + totalKomodo}</strong></span>
-        </div>
-      `;
-    }
-
-    const ctx = document.getElementById('statsChart');
-    if (!ctx) return;
-    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-
-    const labels = [];
-    const dataBungkulan = [];
-    const dataKomodo = [];
-
-    for (let i = 0; i < 12; i++) {
-      const bulanIdx = (bulan - i + 12) % 12;
-      const tahunIdx = bulan - i < 0 ? tahun - 1 : tahun;
-      const namaBulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][bulanIdx];
-      labels.unshift(namaBulan + ' ' + tahunIdx);
-      let b = 0, k = 0;
-      Object.entries(dataJadwal).forEach(([tgl, data]) => {
-        const d = new Date(tgl + 'T12:00:00');
-        if (d.getMonth() === bulanIdx && d.getFullYear() === tahunIdx) {
-          b += data.bungkulan?.length || 0;
-          k += data.komodo?.length || 0;
-        }
-      });
-      dataBungkulan.unshift(b);
-      dataKomodo.unshift(k);
-    }
-
-    chartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [
-          { label: 'Bungkulan Post', data: dataBungkulan, backgroundColor: 'rgba(42, 127, 170, 0.7)', borderColor: '#2a7faa', borderWidth: 1 },
-          { label: 'Komodo Warehouse', data: dataKomodo, backgroundColor: 'rgba(46, 204, 113, 0.7)', borderColor: '#2ecc71', borderWidth: 1 }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: { legend: { labels: { color: '#aaa' } } },
-        scales: {
-          x: { ticks: { color: '#888', maxRotation: 45 } },
-          y: { ticks: { color: '#888', stepSize: 1 } }
-        }
-      }
-    });
-  }
-
-  // ============================================================
-  //  TAB SWITCHING
-  // ============================================================
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-
-      const tab = this.dataset.tab;
-      const target = document.getElementById(tab + '-tab');
-      if (target) target.classList.add('active');
-
-      if (tab === 'preview') renderPreview();
-      if (tab === 'admin') {
-        if (!isAdmin) {
-          document.getElementById('admin-pin-screen').style.display = 'block';
-          document.getElementById('admin-content').style.display = 'none';
-        } else {
-          document.getElementById('admin-pin-screen').style.display = 'none';
-          document.getElementById('admin-content').style.display = 'block';
-          renderCalendar(currentMonth, currentYear);
-        }
-      }
-      if (tab === 'stats') setTimeout(() => updateStats(), 100);
-    });
-  });
-
-  // ============================================================
-  //  STATUS DISPLAY
-  // ============================================================
-  function showStatus(type, message) {
-    const container = document.getElementById('preview-table-wrap');
-    let box = container.querySelector('.status-box');
-    if (!box) {
-      box = document.createElement('div');
-      box.className = 'status-box';
-      container.prepend(box);
-    }
-    box.className = `status-box ${type}`;
-    const icon = type === 'error' ? 'circle-exclamation' : type === 'success' ? 'circle-check' : 'circle-info';
-    box.innerHTML = `<i class="fa-solid fa-${icon}"></i> ${message}`;
-  }
-
-  // ============================================================
-  //  HILANGKAN POPUP INSTALL
-  // ============================================================
-  window.addEventListener('beforeinstallprompt', (e) => e.preventDefault());
-
-  // ============================================================
-  //  AOS INIT
-  // ============================================================
-  document.addEventListener('DOMContentLoaded', function() {
-    if (typeof AOS !== 'undefined') {
-      AOS.init({ duration: 600, once: true, offset: 50 });
-    }
-  });
-
-  // ============================================================
-  //  INISIALISASI
-  // ============================================================
-  async function initApp() {
-    populateYearSelector();
-    setCurrentMonth();
-    await fetchJadwal();
-    autoDeleteExpired();
-    document.querySelector('.tab-btn[data-tab="preview"]').click();
-    console.log('✅ Aplikasi siap (CSS Fix - Stabil)');
-  }
-
-  initApp();
-</script>
+<!-- ===== APP JS ===== -->
+<script src="js/app.js"></script>
 </body>
 </html>
