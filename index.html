@@ -345,8 +345,8 @@
       return;
     }
     entries.forEach(([tgl, data]) => {
-      const bungkulan = data.bungkulan?.length ? data.bungkulan.map(n => '🪖 ' + n).join('<br>') : '—';
-      const komodo = data.komodo?.length ? data.komodo.map(n => '🪖 ' + n).join('<br>') : '—';
+      const bungkulan = data.bungkulan?.length ? data.bungkulan.map(n => '👮 ' + n).join('<br>') : '—';
+      const komodo = data.komodo?.length ? data.komodo.map(n => '🦹 ' + n).join('<br>') : '—';
       const row = document.createElement('tr');
       row.innerHTML = `<td>${formatTanggalLengkap(tgl)}</td><td>${bungkulan}</td><td>${komodo}</td>`;
       tbody.appendChild(row);
