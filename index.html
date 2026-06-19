@@ -17,7 +17,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    /* (CSS sama seperti sebelumnya – tidak diubah) */
+    /* ===== CSS SAMA SEPERTI SEBELUMNYA (tidak diubah) ===== */
     * { box-sizing: border-box; }
     :root {
       --bg: #121212;
@@ -52,7 +52,6 @@
     }
     h1 i { font-size: 2rem; color: var(--accent); }
 
-    /* TABS */
     .tab-bar {
       display: flex;
       justify-content: center;
@@ -84,7 +83,6 @@
     }
     .tab-content.active { display: block; }
 
-    /* PREVIEW TABLE */
     #preview-table-wrap {
       background: var(--card);
       border-radius: 16px;
@@ -112,7 +110,6 @@
     #preview-table tr:nth-child(even) { background: #1a1a1a; }
     .preview-empty { text-align: center; padding: 30px; color: #888; }
 
-    /* ADMIN */
     #live-clock {
       text-align: center;
       font-size: 2rem;
@@ -191,7 +188,6 @@
     .btn-png { background: #3b5f7a; }
     .btn-reset { background: #7a3b3b; }
 
-    /* MODAL */
     .modal {
       display: none;
       position: fixed;
@@ -280,7 +276,6 @@
     }
     .close-btn:hover { background: #5a5a5a; }
 
-    /* PRINT AREA */
     #print-area {
       position: absolute;
       left: -9999px;
@@ -319,7 +314,6 @@
 
     audio { display: none; }
 
-    /* PIN SCREEN */
     #admin-pin-screen { text-align: center; padding: 30px; }
     #admin-pin-screen i { font-size: 3rem; color: #888; }
     #admin-pin-screen p { margin: 15px 0; }
@@ -344,7 +338,6 @@
     }
     #pin-error { color: #e74c3c; margin-top: 10px; display: none; }
 
-    /* FLOATING CHAT */
     #chat-fab {
       position: fixed;
       bottom: 25px;
@@ -540,19 +533,43 @@
 
 <script>
   // ============================================================
-  //  SUPABASE CREDENTIAL (sudah diisi)
+  //  🔐 KONFIGURASI SUPABASE – GANTI DENGAN PUNYA ANDA!
   // ============================================================
-  const SUPABASE_URL = 'https://rrccgcdghwpfzfyvfp.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyY29jY2dkZ3docGZmemZ5dmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MTA2NzEsImV4cCI6MjA5NzM4NjY3MX0.-yKZNdxuj3kumFKduXskk1mBG7UCR51Tb_NnWOjUAtY';
+  // 1. Buka https://app.supabase.com → pilih project Anda
+  // 2. Klik Settings → API
+  // 3. Salin Project URL dan anon public key
+  // ============================================================
+  const SUPABASE_URL = 'https://rrccgcdghwpfzfyvfp.supabase.co'; // <-- GANTI INI!
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyY29jY2dkZ3docGZmemZ5dmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MTA2NzEsImV4cCI6MjA5NzM4NjY3MX0.-yKZNdxuj3kumFKduXskk1mBG7UCR51Tb_NnWOjUAtY'; // <-- GANTI INI JUGA JIKA BERBEDA
 
-  // Inisialisasi Supabase dengan pengecekan
-  let supabaseClient;
-  try {
-    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    console.log('✅ Supabase terinisialisasi');
-  } catch (e) {
-    console.error('❌ Gagal inisialisasi Supabase:', e);
-    alert('Gagal koneksi ke Supabase. Periksa URL dan Key.');
+  // ============================================================
+  //  TEST KONEKSI SUPABASE (sebelum digunakan)
+  // ============================================================
+  let supabaseClient = null;
+  let isSupabaseConnected = false;
+
+  async function testSupabaseConnection() {
+    try {
+      // Coba fetch ke endpoint health check
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/`, {
+        headers: { 'apikey': SUPABASE_ANON_KEY }
+      });
+      if (response.ok) {
+        console.log('✅ Supabase connection OK');
+        isSupabaseConnected = true;
+        // Inisialisasi client
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        return true;
+      } else {
+        console.warn('⚠️ Supabase response not OK:', response.status);
+        isSupabaseConnected = false;
+        return false;
+      }
+    } catch (e) {
+      console.error('❌ Gagal koneksi ke Supabase:', e.message);
+      isSupabaseConnected = false;
+      return false;
+    }
   }
 
   // ============================================================
@@ -580,15 +597,20 @@
   //  CRUD SUPABASE (dengan error handling detail)
   // ============================================================
   async function loadJadwalFromSupabase() {
-    if (!supabaseClient) {
-      alert('Supabase tidak terhubung. Periksa koneksi.');
+    if (!isSupabaseConnected || !supabaseClient) {
+      alert('❌ Tidak terhubung ke Supabase.\n\n' +
+            'Periksa:\n' +
+            '1. URL project di dashboard Supabase (Settings → API)\n' +
+            '2. Apakah project masih aktif?\n' +
+            '3. Apakah anon key benar?\n\n' +
+            `URL yang digunakan: ${SUPABASE_URL}`);
       return;
     }
     try {
       const { data, error } = await supabaseClient.from('jadwal').select('*');
       if (error) {
         console.error('❌ Error select jadwal:', error);
-        alert('Gagal ambil data: ' + error.message);
+        alert('Gagal ambil data: ' + error.message + '\nPastikan tabel "jadwal" sudah dibuat dan RLS policy diatur.');
         return;
       }
       dataJadwal = {};
@@ -607,8 +629,8 @@
   }
 
   async function upsertJadwal(tanggal, bungkulan, komodo) {
-    if (!supabaseClient) {
-      alert('Supabase tidak terhubung.');
+    if (!isSupabaseConnected || !supabaseClient) {
+      alert('Tidak terhubung ke Supabase. Periksa koneksi.');
       return;
     }
     try {
@@ -628,8 +650,8 @@
   }
 
   async function deleteAllJadwal() {
-    if (!supabaseClient) {
-      alert('Supabase tidak terhubung.');
+    if (!isSupabaseConnected || !supabaseClient) {
+      alert('Tidak terhubung ke Supabase.');
       return;
     }
     try {
@@ -899,7 +921,7 @@
   });
 
   // ============================================================
-  //  FLOATING CHAT WIDGET (dengan error handling)
+  //  FLOATING CHAT WIDGET
   // ============================================================
   const fab = document.getElementById('chat-fab');
   const panel = document.getElementById('chat-panel');
@@ -916,8 +938,7 @@
   });
   closeBtn.addEventListener('click', () => panel.classList.remove('open'));
 
-  // Supabase realtime untuk chat
-  if (supabaseClient) {
+  if (isSupabaseConnected && supabaseClient) {
     supabaseClient
       .channel('public:chat')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat' }, payload => {
@@ -925,13 +946,11 @@
         appendChatMessage(msg.pesan, msg.created_at);
       })
       .subscribe();
-  } else {
-    console.warn('⚠️ Supabase tidak terhubung, chat tidak aktif.');
   }
 
   async function loadChatHistory() {
-    if (!supabaseClient) {
-      alert('Chat tidak aktif karena Supabase tidak terhubung.');
+    if (!isSupabaseConnected || !supabaseClient) {
+      console.warn('⚠️ Supabase tidak terhubung, chat tidak aktif.');
       return;
     }
     try {
@@ -966,7 +985,7 @@
   async function sendChatMessage() {
     const pesan = chatInput.value.trim();
     if (!pesan) return;
-    if (!supabaseClient) {
+    if (!isSupabaseConnected || !supabaseClient) {
       alert('Chat tidak aktif karena Supabase tidak terhubung.');
       return;
     }
@@ -990,19 +1009,34 @@
   });
 
   // ============================================================
-  //  INISIALISASI
+  //  INISIALISASI – cek koneksi dulu
   // ============================================================
-  if (supabaseClient) {
-    loadJadwalFromSupabase().then(() => renderPreview());
-    loadChatHistory();
-  } else {
-    document.getElementById('preview-body').innerHTML = `<tr><td colspan="3" class="preview-empty">❌ Tidak bisa terhubung ke database. Periksa koneksi.</td></tr>`;
+  async function initApp() {
+    // Tampilkan status loading
+    document.getElementById('preview-body').innerHTML = `<tr><td colspan="3" class="preview-empty">⏳ Mengecek koneksi ke Supabase...</td></tr>`;
+
+    const connected = await testSupabaseConnection();
+    if (connected) {
+      await loadJadwalFromSupabase();
+      await loadChatHistory();
+    } else {
+      document.getElementById('preview-body').innerHTML = `
+        <tr><td colspan="3" class="preview-empty">
+          ❌ Gagal terhubung ke Supabase.<br><br>
+          <strong>Periksa:</strong><br>
+          1. URL project di dashboard Supabase (Settings → API)<br>
+          2. Apakah project masih aktif?<br>
+          3. Apakah anon key benar?<br><br>
+          <span style="font-size:0.8rem;color:#666;">URL: ${SUPABASE_URL}</span>
+        </td></tr>`;
+    }
+
+    // Aktifkan tab preview
+    document.querySelector('.tab-btn[data-tab="preview"]').click();
+    console.log('✅ Aplikasi siap!');
   }
 
-  // Pastikan tab preview aktif
-  document.querySelector('.tab-btn[data-tab="preview"]').click();
-
-  console.log('✅ Aplikasi siap!');
+  initApp();
 </script>
 </body>
 </html>
