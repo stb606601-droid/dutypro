@@ -13,17 +13,11 @@
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
   <link rel="manifest" href="manifest.json" />
 
-  <!-- ===== CSS EKSTERNAL ===== -->
+  <!-- ===== CSS EKSTERNAL (UTAMA) ===== -->
   <link rel="stylesheet" href="css/style.css" />
-
-  <!-- ===== CSS FRAMEWORK ===== -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css" />
-  <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- ===== ICONS ===== -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" />
 
   <!-- ===== ANIMASI ===== -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
@@ -45,27 +39,24 @@
   <!-- ===== AOS ===== -->
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
 
+  <!-- ===== HAPUS KONFLIK CSS DARI BOOTSTRAP/BULMA ===== -->
   <style>
-    /* ===== OVERRIDE BOOTSTRAP/BULMA YANG GANGGU ===== */
-    .container, .container-fluid {
+    /* Reset tambahan untuk menghilangkan konflik */
+    .container, .container-fluid, .row, .col {
       padding-left: 0 !important;
       padding-right: 0 !important;
-    }
-    .row {
       margin-left: 0 !important;
       margin-right: 0 !important;
     }
-    .col {
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-    }
     .btn {
       border-radius: 40px !important;
+      font-family: inherit !important;
     }
-    select.form-control, select.form-select {
-      background-color: var(--bg) !important;
-      color: white !important;
-      border-color: var(--border) !important;
+    select, input {
+      font-family: inherit !important;
+    }
+    .modal-content {
+      background: #1e1e1e !important;
     }
   </style>
 </head>
@@ -374,7 +365,6 @@
     const firstDay = new Date(year, month, 1).getDay();
     const namaHari = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
-    // Header hari
     for (let i = 0; i < 7; i++) {
       const header = document.createElement('div');
       header.className = 'calendar-header';
@@ -383,14 +373,12 @@
       cal.appendChild(header);
     }
 
-    // Kosong sebelum tanggal 1
     for (let i = 0; i < firstDay; i++) {
       const empty = document.createElement('div');
       empty.style.cssText = 'background:transparent;border:none;box-shadow:none;cursor:default;';
       cal.appendChild(empty);
     }
 
-    // Loop tanggal
     const today = new Date();
     for (let d = 1; d <= days; d++) {
       const dateStr = `${year}-${pad(month+1)}-${pad(d)}`;
@@ -416,7 +404,6 @@
       cal.appendChild(el);
     }
 
-    // Update judul bulan di greeting
     const bulanNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
     document.getElementById('greeting').innerText = `📅 ${bulanNames[month]} ${year}`;
   }
@@ -505,7 +492,7 @@
   });
 
   // ============================================================
-  //  MONTH / YEAR SELECTOR (OTOMATIS BULAN & TAHUN SEKARANG)
+  //  MONTH / YEAR SELECTOR
   // ============================================================
   function populateYearSelector() {
     const sel = document.getElementById('year-selector');
@@ -522,8 +509,7 @@
 
   function setCurrentMonth() {
     const monthSelector = document.getElementById('month-selector');
-    const currentMonth = new Date().getMonth();
-    monthSelector.value = currentMonth;
+    monthSelector.value = new Date().getMonth();
   }
 
   document.getElementById('btn-go-month').addEventListener('click', function() {
@@ -534,7 +520,6 @@
     if (isAdmin) renderCalendar(month, year);
   });
 
-  // Juga ketika select berubah, otomatis update
   document.getElementById('month-selector').addEventListener('change', function() {
     document.getElementById('btn-go-month').click();
   });
@@ -852,7 +837,7 @@
     await fetchJadwal();
     autoDeleteExpired();
     document.querySelector('.tab-btn[data-tab="preview"]').click();
-    console.log('✅ Aplikasi siap (CSS Fix | Bulan & Tahun Sekarang)');
+    console.log('✅ Aplikasi siap (CSS Fix - Stabil)');
   }
 
   initApp();
