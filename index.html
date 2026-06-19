@@ -6,7 +6,6 @@
   <meta name="theme-color" content="#121212" />
   <title>Duty Schedule Pro</title>
 
-  <!-- PWA Icons -->
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
@@ -17,7 +16,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    /* ========== CSS (sama seperti sebelumnya) ========== */
     * { box-sizing: border-box; }
     :root {
       --bg: #121212;
@@ -338,109 +336,6 @@
     }
     #pin-error { color: #e74c3c; margin-top: 10px; display: none; }
 
-    #chat-fab {
-      position: fixed;
-      bottom: 25px;
-      right: 25px;
-      z-index: 999;
-      background: var(--accent);
-      color: #121212;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-      cursor: pointer;
-      border: none;
-      transition: 0.2s;
-    }
-    #chat-fab:hover { transform: scale(1.05); }
-
-    #chat-panel {
-      position: fixed;
-      bottom: 95px;
-      right: 25px;
-      width: 340px;
-      max-width: 90vw;
-      max-height: 450px;
-      background: var(--card);
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
-      display: none;
-      flex-direction: column;
-      z-index: 998;
-      overflow: hidden;
-    }
-    #chat-panel.open { display: flex; }
-    #chat-panel-header {
-      padding: 12px 16px;
-      background: var(--accent);
-      color: #121212;
-      font-weight: 600;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #2a2a2a;
-    }
-    #chat-panel-header button {
-      background: transparent;
-      border: none;
-      color: #121212;
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
-    #chat-panel-messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px 14px;
-      background: #0d0d0d;
-      max-height: 300px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    #chat-panel-messages .msg {
-      padding: 4px 0;
-      border-bottom: 1px solid #222;
-      font-size: 0.95rem;
-    }
-    #chat-panel-messages .msg .time {
-      color: #666;
-      font-size: 0.7rem;
-      margin-right: 8px;
-    }
-    #chat-panel-input {
-      display: flex;
-      gap: 8px;
-      padding: 10px 12px;
-      border-top: 1px solid var(--border);
-      background: var(--card);
-    }
-    #chat-panel-input input {
-      flex: 1;
-      padding: 8px 14px;
-      border-radius: 30px;
-      border: 1px solid var(--border);
-      background: #121212;
-      color: white;
-      outline: none;
-    }
-    #chat-panel-input input::placeholder { color: #555; }
-    #chat-panel-input button {
-      background: var(--accent);
-      border: none;
-      border-radius: 30px;
-      padding: 0 16px;
-      font-weight: 600;
-      color: #121212;
-      cursor: pointer;
-    }
-    #chat-panel-input button:hover { opacity: 0.8; }
-
     .status-box {
       background: #1a1a2e;
       border-left: 4px solid #f1c40f;
@@ -461,15 +356,14 @@
       border-radius: 30px;
       font-weight: bold;
       cursor: pointer;
-      margin-left: 10px;
+      margin: 10px 0;
+      display: inline-block;
     }
 
     @media (max-width: 600px) {
       .tab-btn { padding: 8px 16px; font-size: 0.9rem; }
       #preview-table { font-size: 12px; }
       #preview-table th, #preview-table td { padding: 6px 4px; }
-      #chat-panel { width: 90vw; right: 5vw; bottom: 85px; }
-      #chat-fab { width: 54px; height: 54px; font-size: 24px; bottom: 20px; right: 20px; }
     }
   </style>
 </head>
@@ -484,7 +378,7 @@
 </div>
 
 <!-- TOMBOL COBA ULANG -->
-<button id="retry-btn" style="display:none;"><i class="fa-solid fa-rotate"></i> Coba Ulang</button>
+<button id="retry-btn"><i class="fa-solid fa-rotate"></i> Coba Ulang</button>
 
 <!-- TAB PREVIEW -->
 <div id="preview-tab" class="tab-content active">
@@ -541,29 +435,15 @@
   <source src="https://notificationsounds.com/storage/sounds/file-sounds-1157-ting-tong.mp3" type="audio/mpeg" />
 </audio>
 
-<!-- FLOATING CHAT -->
-<button id="chat-fab"><i class="fa-regular fa-comment-dots"></i></button>
-<div id="chat-panel">
-  <div id="chat-panel-header">
-    <span><i class="fa-regular fa-comment-dots"></i> Live Chat</span>
-    <button id="chat-close-btn">&times;</button>
-  </div>
-  <div id="chat-panel-messages"></div>
-  <div id="chat-panel-input">
-    <input type="text" id="chat-input" placeholder="Tulis pesan..." />
-    <button id="chat-send-btn"><i class="fa-regular fa-paper-plane"></i></button>
-  </div>
-</div>
-
 <script>
   // ============================================================
-  //  🔐 KONFIGURASI SUPABASE (ganti dengan milik Anda)
+  // 🔐 KONFIGURASI SUPABASE – GANTI DENGAN MILIK ANDA!
   // ============================================================
-  const SUPABASE_URL = 'https://rrccgcdghwpfzfyvfp.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyY29jY2dkZ3docGZmemZ5dmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MTA2NzEsImV4cCI6MjA5NzM4NjY3MX0.-yKZNdxuj3kumFKduXskk1mBG7UCR51Tb_NnWOjUAtY';
+  const SUPABASE_URL = 'https://rrcoccgdgwhpffzfyvfp.supabase.co';  // Ganti
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyY29jY2dkZ3docGZmemZ5dmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MTA2NzEsImV4cCI6MjA5NzM4NjY3MX0.-yKZNdxuj3kumFKduXskk1mBG7UCR51Tb_NnWOjUAtY'; // Ganti
 
   // ============================================================
-  //  GLOBAL STATE
+  // GLOBAL STATE
   // ============================================================
   let supabaseClient = null;
   let isSupabaseConnected = false;
@@ -574,7 +454,7 @@
   const today = new Date();
 
   // ============================================================
-  //  HELPERS
+  // HELPERS
   // ============================================================
   function pad(n) { return n.toString().padStart(2, '0'); }
   function formatDate(d) { return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
@@ -586,7 +466,7 @@
   }
 
   // ============================================================
-  //  TEST KONEKSI & INISIALISASI
+  // TEST KONEKSI & INISIALISASI
   // ============================================================
   async function testSupabaseConnection() {
     try {
@@ -609,7 +489,7 @@
   }
 
   // ============================================================
-  //  CRUD JADWAL
+  // CRUD JADWAL
   // ============================================================
   async function loadJadwalFromSupabase() {
     if (!isSupabaseConnected || !supabaseClient) {
@@ -678,7 +558,7 @@
   }
 
   // ============================================================
-  //  RENDER PREVIEW
+  // RENDER PREVIEW
   // ============================================================
   function renderPreview() {
     const tbody = document.getElementById('preview-body');
@@ -698,7 +578,7 @@
   }
 
   // ============================================================
-  //  ADMIN – KALENDER & MODAL
+  // ADMIN – KALENDER & MODAL
   // ============================================================
   function renderCalendar() {
     const cal = document.getElementById('calendar');
@@ -785,7 +665,7 @@
   };
 
   // ============================================================
-  //  JAM & SALAM
+  // JAM & SALAM
   // ============================================================
   function updateClock() {
     const now = new Date();
@@ -807,7 +687,7 @@
   ucapanSalam();
 
   // ============================================================
-  //  SHARE, PNG, RESET
+  // SHARE, PNG, RESET
   // ============================================================
   window.shareToday = function() {
     const ting = document.getElementById('tingtong');
@@ -881,7 +761,7 @@
   };
 
   // ============================================================
-  //  ADMIN PIN LOGIN
+  // ADMIN PIN LOGIN
   // ============================================================
   document.getElementById('pin-login-btn').addEventListener('click', function() {
     const pin = document.getElementById('pin-input').value;
@@ -900,7 +780,7 @@
   });
 
   // ============================================================
-  //  TAB SWITCHING
+  // TAB SWITCHING
   // ============================================================
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function() {
@@ -926,97 +806,7 @@
   });
 
   // ============================================================
-  //  FLOATING CHAT
-  // ============================================================
-  const fab = document.getElementById('chat-fab');
-  const panel = document.getElementById('chat-panel');
-  const closeBtn = document.getElementById('chat-close-btn');
-  const chatMessages = document.getElementById('chat-panel-messages');
-  const chatInput = document.getElementById('chat-input');
-  const chatSend = document.getElementById('chat-send-btn');
-
-  fab.addEventListener('click', () => {
-    panel.classList.toggle('open');
-    if (panel.classList.contains('open')) {
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-  });
-  closeBtn.addEventListener('click', () => panel.classList.remove('open'));
-
-  let chatChannel = null;
-  function initChat() {
-    if (chatChannel) {
-      supabaseClient.removeChannel(chatChannel);
-      chatChannel = null;
-    }
-    if (!isSupabaseConnected || !supabaseClient) return;
-    chatChannel = supabaseClient
-      .channel('public:chat')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat' }, payload => {
-        const msg = payload.new;
-        appendChatMessage(msg.pesan, msg.created_at);
-      })
-      .subscribe();
-  }
-
-  async function loadChatHistory() {
-    if (!isSupabaseConnected || !supabaseClient) {
-      console.warn('⚠️ Supabase tidak terhubung, chat tidak aktif.');
-      return;
-    }
-    try {
-      const { data, error } = await supabaseClient
-        .from('chat')
-        .select('*')
-        .order('created_at', { ascending: true })
-        .limit(50);
-      if (error) {
-        alert('Gagal load chat: ' + error.message);
-        return;
-      }
-      chatMessages.innerHTML = '';
-      data.forEach(msg => appendChatMessage(msg.pesan, msg.created_at));
-    } catch (e) {
-      alert('Error: ' + e.message);
-    }
-  }
-
-  function appendChatMessage(pesan, created_at) {
-    const div = document.createElement('div');
-    div.className = 'msg';
-    const time = new Date(created_at);
-    const timeStr = time.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-    div.innerHTML = `<span class="time">${timeStr}</span> ${pesan}`;
-    chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-
-  async function sendChatMessage() {
-    const pesan = chatInput.value.trim();
-    if (!pesan) return;
-    if (!isSupabaseConnected || !supabaseClient) {
-      alert('Chat tidak aktif karena Supabase tidak terhubung.');
-      return;
-    }
-    try {
-      const { error } = await supabaseClient.from('chat').insert({ pesan });
-      if (error) {
-        alert('Gagal kirim pesan: ' + error.message);
-        return;
-      }
-      chatInput.value = '';
-    } catch (e) {
-      alert('Error: ' + e.message);
-    }
-  }
-
-  chatSend.addEventListener('click', sendChatMessage);
-  chatInput.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') sendChatMessage();
-  });
-
-  // ============================================================
-  //  STATUS DISPLAY
+  // STATUS DISPLAY
   // ============================================================
   function showStatus(type, message) {
     const container = document.getElementById('preview-table-wrap');
@@ -1031,32 +821,27 @@
   }
 
   // ============================================================
-  //  TOMBOL COBA ULANG
+  // TOMBOL COBA ULANG
   // ============================================================
   const retryBtn = document.getElementById('retry-btn');
-  retryBtn.style.display = 'inline-block';
   retryBtn.onclick = async function() {
     showStatus('', '⏳ Mengecek koneksi...');
     const ok = await testSupabaseConnection();
     if (ok) {
       await loadJadwalFromSupabase();
-      await loadChatHistory();
-      initChat();
     } else {
       showStatus('error', '❌ Gagal terhubung. Periksa URL dan key.');
     }
   };
 
   // ============================================================
-  //  INISIALISASI
+  // INISIALISASI
   // ============================================================
   async function initApp() {
     showStatus('', '⏳ Mengecek koneksi ke Supabase...');
     const ok = await testSupabaseConnection();
     if (ok) {
       await loadJadwalFromSupabase();
-      await loadChatHistory();
-      initChat();
     } else {
       showStatus('error', '❌ Gagal terhubung. Klik "Coba Ulang" atau periksa URL dan key.');
     }
