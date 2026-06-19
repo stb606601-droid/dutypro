@@ -8,9 +8,13 @@
   <title>Duty Schedule Pro</title>
 
   <!-- ===== PWA ===== -->
-  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪖</text></svg>" />
-  <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪖</text></svg>" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
   <link rel="manifest" href="manifest.json" />
+
+  <!-- ===== CSS EKSTERNAL ===== -->
+  <link rel="stylesheet" href="css/style.css" />
 
   <!-- ===== CSS FRAMEWORK ===== -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -40,369 +44,6 @@
 
   <!-- ===== AOS ===== -->
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #121212;
-      --card: #1e1e1e;
-      --border: #2c2c2c;
-      --accent: #25d366;
-      --blue: #003a5c;
-      --green: #004d00;
-      --text: #f0f0f0;
-      --red: #e74c3c;
-      --yellow: #b8860b;
-      --yellow-light: #d4a017;
-    }
-    body {
-      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      padding: 15px 12px;
-      max-width: 900px;
-      margin: 0 auto;
-      min-height: 100vh;
-      padding-bottom: 30px;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-    .app-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    h1 {
-      font-weight: 500;
-      font-size: 1.8rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0;
-    }
-    h1 i { font-size: 2rem; color: var(--accent); }
-
-    #signal-indicator {
-      display: flex;
-      align-items: flex-end;
-      gap: 3px;
-      height: 24px;
-      padding: 2px 6px;
-      background: rgba(0,0,0,0.3);
-      border-radius: 4px;
-    }
-    .signal-bar { width: 4px; background: #555; border-radius: 1px; transition: background 0.3s; }
-    .signal-bar:nth-child(1) { height: 6px; }
-    .signal-bar:nth-child(2) { height: 10px; }
-    .signal-bar:nth-child(3) { height: 16px; }
-    .signal-bar:nth-child(4) { height: 22px; }
-    #signal-indicator.online .signal-bar { background: #2ecc71; }
-    #signal-indicator.offline .signal-bar { background: #e74c3c; }
-    #signal-text { font-size: 0.7rem; margin-left: 4px; color: #888; }
-
-    .tab-bar {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin: 15px 0 12px;
-      flex-wrap: wrap;
-    }
-    .tab-btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 40px;
-      font-size: 1rem;
-      font-weight: 600;
-      background: var(--card);
-      color: #aaa;
-      border: 1px solid var(--border);
-      cursor: pointer;
-      flex: 1 1 auto;
-      min-width: 100px;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-      transition: 0.3s;
-    }
-    .tab-btn.active { background: var(--accent); color: #121212; border-color: var(--accent); }
-    .tab-btn:hover { opacity: 0.8; transform: scale(1.02); }
-    .tab-content { display: none; margin-top: 10px; flex: 1; animation: fadeIn 0.3s ease; }
-    .tab-content.active { display: block; }
-
-    #preview-table-wrap {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 15px 10px;
-      border: 1px solid var(--border);
-      overflow-x: auto;
-    }
-    #preview-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    #preview-table th {
-      background: #1e3a5f; color: white; padding: 10px 6px;
-      border: 1px solid #0f2a44; text-align: center;
-    }
-    #preview-table td { border: 1px solid #333; padding: 8px 6px; vertical-align: top; }
-    #preview-table tr:nth-child(even) { background: #1a1a1a; }
-    .preview-empty { text-align: center; padding: 30px; color: #888; }
-
-    .button-group {
-      display: flex;
-      gap: 10px;
-      margin: 18px 0 5px;
-      flex-wrap: wrap;
-    }
-    .btn {
-      flex: 1;
-      border: none;
-      padding: 14px 0;
-      border-radius: 40px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      color: white;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      min-width: 80px;
-      transition: 0.2s;
-    }
-    .btn:hover { transform: scale(1.02); opacity: 0.9; }
-    .btn-share { background: #25d366; }
-    .btn-png { background: #3b5f7a; }
-    .btn-pdf { background: #e74c3c; }
-    .btn-save-modal { background: var(--accent); color: #121212; padding: 10px 20px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; }
-
-    /* ===== ADMIN PIN ===== */
-    #admin-pin-screen {
-      text-align: center;
-      padding: 40px 20px;
-      background: var(--card);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-    }
-    #admin-pin-screen i { font-size: 3rem; color: #888; }
-    #admin-pin-screen p { margin: 15px 0; color: #aaa; }
-    #pin-input {
-      padding: 12px 24px;
-      border-radius: 30px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      color: white;
-      width: 200px;
-      text-align: center;
-      font-size: 1.2rem;
-      outline: none;
-    }
-    #pin-input:focus { border-color: var(--accent); }
-    #pin-login-btn {
-      background: var(--accent);
-      color: #121212;
-      padding: 12px 36px;
-      border: none;
-      border-radius: 30px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: 0.2s;
-    }
-    #pin-login-btn:hover { opacity: 0.8; transform: scale(1.02); }
-    #pin-error { color: #e74c3c; margin-top: 10px; display: none; }
-
-    #admin-content {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 15px 10px;
-      border: 1px solid var(--border);
-    }
-    #live-clock {
-      text-align: center; font-size: 2rem; font-weight: 600; margin: 5px 0 10px;
-      color: var(--accent); background: var(--bg); padding: 8px 15px;
-      border-radius: 50px; display: inline-block; width: auto; margin: 0 auto 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3); letter-spacing: 2px; border: 1px solid var(--border);
-    }
-    .clock-container { text-align: center; }
-    #greeting {
-      text-align: center; margin: 0 0 10px; color: #b0b0b0; font-size: 1.1rem;
-      border-bottom: 1px dashed #2f2f2f; padding-bottom: 10px;
-    }
-
-    .calendar {
-      display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;
-      background: transparent; margin: 10px 0;
-    }
-    .calendar-header {
-      text-align: center; font-size: 0.7rem; font-weight: 600; color: #888;
-      padding: 4px 0; border-bottom: 1px solid var(--border);
-    }
-    .calendar-header.minggu { color: var(--red); }
-    .day {
-      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-      padding: 10px 3px 5px; min-height: 70px; cursor: pointer;
-      display: flex; flex-direction: column; align-items: center; transition: 0.1s;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.5);
-    }
-    .day strong { font-size: 1.2rem; font-weight: 400; }
-    .day.minggu strong { color: var(--red) !important; }
-    .day.today { background: var(--green) !important; border-color: #00a86b !important; }
-    .day.today strong { color: white !important; }
-    .day.has-data { background: var(--yellow) !important; border-color: var(--yellow-light) !important; }
-    .day.has-data strong { color: white !important; }
-    .day.has-data.today { background: linear-gradient(145deg, var(--yellow), var(--green)) !important; }
-    .day:active { transform: scale(0.96); }
-
-    .modal {
-      display: none; position: fixed; inset: 0; background: rgba(10,10,10,0.85);
-      backdrop-filter: blur(6px); justify-content: center; align-items: center;
-      z-index: 1000; padding: 16px;
-    }
-    .modal-content {
-      background: var(--card); padding: 20px 18px; width: 100%; max-width: 500px;
-      border-radius: 28px; border: 1px solid #3a3a3a; box-shadow: 0 20px 40px rgba(0,0,0,0.7);
-      max-height: 90vh; overflow-y: auto;
-    }
-    .modal-content h3 {
-      margin-top: 0; margin-bottom: 16px; font-weight: 500;
-      border-bottom: 3px solid var(--accent); padding-bottom: 10px;
-      display: block; font-size: 1.1rem; text-align: center;
-    }
-    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .modal-col {
-      background: #1a1a2e; border-radius: 16px; padding: 12px 14px; border: 1px solid var(--border);
-    }
-    .modal-col.blue { border-left: 4px solid #2a7faa; }
-    .modal-col.green { border-left: 4px solid #2ecc71; }
-    .modal-col h4 {
-      font-size: 0.8rem; letter-spacing: 0.5px; color: #aaa; margin: 0 0 10px 0;
-      text-align: center; border-bottom: 1px solid #333; padding-bottom: 6px;
-    }
-    .modal-col label {
-      display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
-      font-size: 14px; cursor: pointer; padding: 3px 0; color: #ddd;
-    }
-    .modal-col label:hover { color: white; }
-    .modal-col input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--accent); flex-shrink: 0; }
-    .modal-footer {
-      display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;
-      padding-top: 12px; border-top: 1px solid var(--border);
-    }
-    .close-btn {
-      float: right; background: #3c3c3c; border: none; border-radius: 30px;
-      width: 30px; height: 30px; font-size: 16px; color: white; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      margin-top: -6px; margin-right: -4px; transition: 0.1s;
-    }
-    .close-btn:hover { background: #5a5a5a; }
-
-    /* ===== PRINT AREA UNTUK PDF (A4 RAPI) ===== */
-    #print-area {
-      position: absolute;
-      left: -9999px;
-      top: 0;
-      width: 794px; /* A4 width in pixels at 96dpi */
-      background: white;
-      color: black;
-      padding: 30px 35px 30px 35px;
-      font-family: 'Times New Roman', Arial, sans-serif;
-      font-size: 12pt;
-      line-height: 1.5;
-    }
-    #print-area h2 {
-      color: #1e3a5f;
-      font-size: 22pt;
-      text-align: center;
-      margin-top: 0;
-      margin-bottom: 20px;
-      border-bottom: 3px double #1e3a5f;
-      padding-bottom: 12px;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-    #print-area .sub-title {
-      text-align: center;
-      font-size: 10pt;
-      color: #555;
-      margin-bottom: 18px;
-    }
-    #print-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 10pt;
-    }
-    #print-table th {
-      background: #1e3a5f;
-      color: white;
-      padding: 10px 8px;
-      border: 1px solid #0f2a44;
-      text-align: center;
-      font-weight: bold;
-    }
-    #print-table td {
-      border: 1px solid #333;
-      padding: 8px 8px;
-      vertical-align: top;
-    }
-    #print-table tr:nth-child(even) { background: #f5f5f5; }
-    #print-table .icon-bungkulan { color: #2a7faa; font-weight: bold; }
-    #print-table .icon-komodo { color: #2ecc71; font-weight: bold; }
-    #print-area .footer {
-      text-align: right;
-      margin-top: 25px;
-      font-size: 9pt;
-      color: #888;
-      border-top: 1px solid #ddd;
-      padding-top: 12px;
-      font-style: italic;
-    }
-
-    .status-box {
-      background: #1a1a2e; border-left: 4px solid #f1c40f; padding: 12px 16px;
-      border-radius: 8px; margin-bottom: 16px; font-size: 14px;
-    }
-    .status-box i { margin-right: 8px; }
-    .status-box.error { border-color: #e74c3c; }
-    .status-box.success { border-color: #2ecc71; }
-    .status-box.info { border-color: #3498db; }
-
-    #chart-container {
-      background: var(--card); border-radius: 16px; padding: 20px;
-      border: 1px solid var(--border); margin: 15px 0;
-    }
-    #chart-container h4 { color: #aaa; font-size: 0.9rem; margin-bottom: 10px; text-align: center; }
-
-    .hide { display: none !important; }
-    audio { display: none; }
-
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .fade-in { animation: fadeIn 0.4s ease; }
-
-    @media (max-width: 600px) {
-      body { padding: 10px 8px; }
-      .app-header { flex-wrap: wrap; gap: 6px; }
-      h1 { font-size: 1.4rem; }
-      .tab-btn { padding: 8px 12px; font-size: 0.85rem; min-width: 70px; }
-      #preview-table { font-size: 12px; }
-      #preview-table th, #preview-table td { padding: 5px 4px; }
-      .btn { font-size: 13px; padding: 12px 0; }
-      .day { min-height: 60px; padding: 6px 2px; }
-      .day strong { font-size: 1rem; }
-      #live-clock { font-size: 1.5rem; padding: 6px 12px; }
-      #signal-indicator { height: 20px; }
-      .signal-bar { width: 3px; }
-      .signal-bar:nth-child(1) { height: 5px; }
-      .signal-bar:nth-child(2) { height: 8px; }
-      .signal-bar:nth-child(3) { height: 13px; }
-      .signal-bar:nth-child(4) { height: 18px; }
-      .modal-grid { grid-template-columns: 1fr; gap: 10px; }
-      .modal-content { padding: 16px 12px; max-width: 100%; }
-      .modal-col { padding: 10px 12px; }
-      .modal-col label { font-size: 13px; }
-      #admin-pin-screen { padding: 20px 12px; }
-      #pin-input { width: 160px; font-size: 1rem; padding: 10px 16px; }
-    }
-  </style>
 </head>
 <body>
 
@@ -452,18 +93,45 @@
     <p id="pin-error">PIN salah, coba lagi.</p>
   </div>
 
-  <!-- Admin Content (sembunyi) -->
+  <!-- Admin Content -->
   <div id="admin-content" style="display:none;" data-aos="fade-up">
     <div class="clock-container"><div id="live-clock">--:--:--</div></div>
     <div id="greeting"></div>
+
+    <!-- Pilih Bulan & Tahun -->
+    <div class="admin-controls">
+      <label><i class="fa-regular fa-calendar"></i> Bulan:
+        <select id="month-selector">
+          <option value="0">Januari</option>
+          <option value="1">Februari</option>
+          <option value="2">Maret</option>
+          <option value="3">April</option>
+          <option value="4">Mei</option>
+          <option value="5">Juni</option>
+          <option value="6">Juli</option>
+          <option value="7">Agustus</option>
+          <option value="8">September</option>
+          <option value="9">Oktober</option>
+          <option value="10">November</option>
+          <option value="11">Desember</option>
+        </select>
+      </label>
+      <label><i class="fa-regular fa-calendar"></i> Tahun:
+        <select id="year-selector"></select>
+      </label>
+      <button class="btn btn-save-modal" id="btn-go-month" style="padding:8px 20px;font-size:0.9rem;">
+        <i class="fa-solid fa-arrow-right"></i> Tampilkan
+      </button>
+    </div>
+
     <div class="calendar" id="calendar"></div>
     <div style="margin-top:12px; text-align:center; font-size:0.8rem; color:#888;">
       <i class="fa-regular fa-circle-check"></i> Klik tanggal untuk mengisi jadwal
     </div>
-    <div style="margin-top:6px; text-align:center; font-size:0.75rem; color:#888; display:flex; justify-content:center; gap:16px; flex-wrap:wrap;">
-      <span><span style="display:inline-block; width:16px; height:16px; background:#b8860b; border-radius:4px; vertical-align:middle; margin-right:4px;"></span> Sudah diisi</span>
-      <span><span style="display:inline-block; width:16px; height:16px; background:#004d00; border-radius:4px; vertical-align:middle; margin-right:4px;"></span> Hari ini</span>
-      <span><span style="display:inline-block; width:16px; height:16px; background:#1e1e1e; border:1px solid #2c2c2c; border-radius:4px; vertical-align:middle; margin-right:4px;"></span> Kosong</span>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-color yellow"></span> Sudah diisi</span>
+      <span class="legend-item"><span class="legend-color green"></span> Hari ini</span>
+      <span class="legend-item"><span class="legend-color empty"></span> Kosong</span>
     </div>
   </div>
 </div>
@@ -502,7 +170,7 @@
   </div>
 </div>
 
-<!-- ===== PRINT AREA UNTUK PDF ===== -->
+<!-- ===== PRINT AREA ===== -->
 <div id="print-area">
   <h2>🪖 DUTY SCHEDULE</h2>
   <div class="sub-title">Daftar Jaga Pos Bungkulan &amp; Komodo Warehouse</div>
@@ -532,7 +200,8 @@
   let dataJadwal = {};
   let isAdmin = false;
   const petugasList = ['Ajik Su', 'Wayan S', 'Mang Beni', 'Indra S', 'Kadek Widana'];
-  const today = new Date();
+  let currentMonth = new Date().getMonth();
+  let currentYear = new Date().getFullYear();
   let isLoading = false;
   let supabaseClient = null;
   let chartInstance = null;
@@ -596,7 +265,7 @@
         };
       });
       renderPreview();
-      if (isAdmin) renderCalendar();
+      if (isAdmin) renderCalendar(currentMonth, currentYear);
       updateStats();
       showStatus('success', '✅ Data dimuat dari Supabase');
     } catch (err) {
@@ -634,7 +303,7 @@
   //  AUTO DELETE EXPIRED
   // ============================================================
   function autoDeleteExpired() {
-    const todayStr = formatDate(today);
+    const todayStr = formatDate(new Date());
     let hasDeleted = false;
     for (const [tgl] of Object.entries(dataJadwal)) {
       if (tgl < todayStr) {
@@ -644,7 +313,7 @@
     }
     if (hasDeleted) {
       renderPreview();
-      if (isAdmin) renderCalendar();
+      if (isAdmin) renderCalendar(currentMonth, currentYear);
     }
   }
 
@@ -669,18 +338,18 @@
   }
 
   // ============================================================
-  //  KALENDER (ADMIN)
+  //  KALENDER (ADMIN) - Dengan Bulan & Tahun
   // ============================================================
-  function renderCalendar() {
+  function renderCalendar(month, year) {
     const cal = document.getElementById('calendar');
     if (!cal) return;
     cal.innerHTML = '';
-    const y = today.getFullYear();
-    const m = today.getMonth();
-    const days = new Date(y, m + 1, 0).getDate();
-    const firstDay = new Date(y, m, 1).getDay();
+
+    const days = new Date(year, month + 1, 0).getDate();
+    const firstDay = new Date(year, month, 1).getDay();
     const namaHari = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
+    // Header hari
     for (let i = 0; i < 7; i++) {
       const header = document.createElement('div');
       header.className = 'calendar-header';
@@ -688,29 +357,43 @@
       header.textContent = namaHari[i];
       cal.appendChild(header);
     }
+
+    // Kosong sebelum tanggal 1
     for (let i = 0; i < firstDay; i++) {
       const empty = document.createElement('div');
       empty.style.cssText = 'background:transparent;border:none;box-shadow:none;cursor:default;';
       cal.appendChild(empty);
     }
+
+    // Loop tanggal
+    const today = new Date();
     for (let d = 1; d <= days; d++) {
-      const dateStr = `${y}-${pad(m+1)}-${pad(d)}`;
+      const dateStr = `${year}-${pad(month+1)}-${pad(d)}`;
       const el = document.createElement('div');
       el.className = 'day';
-      const dateObj = new Date(y, m, d);
+
+      const dateObj = new Date(year, month, d);
       if (dateObj.getDay() === 0) el.classList.add('minggu');
+
       if (dateStr === formatDate(today)) el.classList.add('today');
+
       const hasData = dataJadwal[dateStr] &&
         ((dataJadwal[dateStr].bungkulan?.length || 0) + (dataJadwal[dateStr].komodo?.length || 0) > 0);
       if (hasData) el.classList.add('has-data');
+
       el.innerHTML = `<strong>${d}</strong>`;
       if (hasData) {
         const count = (dataJadwal[dateStr].bungkulan?.length || 0) + (dataJadwal[dateStr].komodo?.length || 0);
         el.innerHTML += `<span style="font-size:10px;opacity:0.9;margin-top:2px;">${count} jaga</span>`;
       }
+
       el.onclick = () => openModal(dateStr);
       cal.appendChild(el);
     }
+
+    // Update judul bulan di greeting
+    const bulanNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    document.getElementById('greeting').innerText = `📅 ${bulanNames[month]} ${year}`;
   }
 
   // ============================================================
@@ -786,7 +469,7 @@
       isAdmin = true;
       document.getElementById('admin-pin-screen').style.display = 'none';
       document.getElementById('admin-content').style.display = 'block';
-      renderCalendar();
+      renderCalendar(currentMonth, currentYear);
       document.getElementById('pin-error').style.display = 'none';
     } else {
       document.getElementById('pin-error').style.display = 'block';
@@ -797,7 +480,39 @@
   });
 
   // ============================================================
-  //  JAM & SALAM
+  //  MONTH / YEAR SELECTOR
+  // ============================================================
+  function populateYearSelector() {
+    const sel = document.getElementById('year-selector');
+    sel.innerHTML = '';
+    const currentYear = new Date().getFullYear();
+    for (let y = currentYear - 5; y <= currentYear + 1; y++) {
+      const opt = document.createElement('option');
+      opt.value = y;
+      opt.textContent = y;
+      if (y === currentYear) opt.selected = true;
+      sel.appendChild(opt);
+    }
+  }
+
+  document.getElementById('btn-go-month').addEventListener('click', function() {
+    const month = parseInt(document.getElementById('month-selector').value);
+    const year = parseInt(document.getElementById('year-selector').value);
+    currentMonth = month;
+    currentYear = year;
+    if (isAdmin) renderCalendar(month, year);
+  });
+
+  // Juga ketika select berubah, otomatis update
+  document.getElementById('month-selector').addEventListener('change', function() {
+    document.getElementById('btn-go-month').click();
+  });
+  document.getElementById('year-selector').addEventListener('change', function() {
+    document.getElementById('btn-go-month').click();
+  });
+
+  // ============================================================
+  //  JAM
   // ============================================================
   function updateClock() {
     const now = new Date();
@@ -807,24 +522,13 @@
   setInterval(updateClock, 1000);
   updateClock();
 
-  function ucapanSalam() {
-    const jam = new Date().getHours();
-    let salam = 'Selamat Datang';
-    if (jam < 11) salam = 'Selamat Pagi';
-    else if (jam < 15) salam = 'Selamat Siang';
-    else if (jam < 18) salam = 'Selamat Sore';
-    else salam = 'Selamat Malam';
-    document.getElementById('greeting').innerText = salam + '!';
-  }
-  ucapanSalam();
-
   // ============================================================
   //  SHARE WHATSAPP
   // ============================================================
   window.shareToday = function() {
     const ting = document.getElementById('tingtong');
     if (ting) ting.play().catch(()=>{});
-    const dateStr = formatDate(today);
+    const dateStr = formatDate(new Date());
     const data = dataJadwal[dateStr];
     if (!data || (!data.bungkulan?.length && !data.komodo?.length)) {
       Swal.fire('Info', 'Belum ada jadwal untuk hari ini.', 'info');
@@ -855,7 +559,7 @@
         printArea.style.position = 'absolute';
         printArea.style.left = '-9999px';
         const link = document.createElement('a');
-        link.download = `DutySchedule-${formatDate(today)}.png`;
+        link.download = `DutySchedule-${formatDate(new Date())}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
       })
@@ -867,7 +571,7 @@
   };
 
   // ============================================================
-  //  BUILD PRINT TABLE (untuk PDF & PNG)
+  //  BUILD PRINT TABLE
   // ============================================================
   function buildPrintTable(table) {
     table.innerHTML = '';
@@ -900,7 +604,7 @@
   }
 
   // ============================================================
-  //  EXPORT PDF (A4 RAPI)
+  //  EXPORT PDF
   // ============================================================
   window.exportPDF = function() {
     const entries = Object.entries(dataJadwal);
@@ -913,7 +617,6 @@
     const table = document.getElementById('print-table');
     buildPrintTable(table);
 
-    // Tampilkan print area untuk di-capture
     printArea.style.position = 'fixed';
     printArea.style.left = '0';
     printArea.style.top = '0';
@@ -922,10 +625,9 @@
     printArea.style.width = '794px';
     printArea.style.padding = '30px 35px';
 
-    // Gunakan html2pdf dengan konfigurasi A4
     const opt = {
       margin: [15, 15, 15, 15],
-      filename: `DutySchedule-${formatDate(today)}.pdf`,
+      filename: `DutySchedule-${formatDate(new Date())}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: {
         scale: 2,
@@ -976,7 +678,7 @@
   };
 
   // ============================================================
-  //  STATISTIK (Chart.js)
+  //  STATISTIK
   // ============================================================
   function updateStats() {
     const now = new Date();
@@ -1073,7 +775,7 @@
         } else {
           document.getElementById('admin-pin-screen').style.display = 'none';
           document.getElementById('admin-content').style.display = 'block';
-          renderCalendar();
+          renderCalendar(currentMonth, currentYear);
         }
       }
       if (tab === 'stats') setTimeout(() => updateStats(), 100);
@@ -1114,10 +816,11 @@
   //  INISIALISASI
   // ============================================================
   async function initApp() {
+    populateYearSelector();
     await fetchJadwal();
     autoDeleteExpired();
     document.querySelector('.tab-btn[data-tab="preview"]').click();
-    console.log('✅ Aplikasi siap (PIN 6600 | PDF A4 Rapi | Icon Berbeda)');
+    console.log('✅ Aplikasi siap (CSS Eksternal | Pilih Bulan/Tahun)');
   }
 
   initApp();
