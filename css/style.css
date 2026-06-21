@@ -185,8 +185,8 @@ body {
 }
 
 .btn:hover { transform: translateY(-2px); opacity: 0.9; }
-.btn-share { background: #25d366; }
-.btn-png { background: #3b5f7a; }
+.btn-share { background: #8BC34A; }
+.btn-png { background: #FFC107; }
 .btn-pdf { background: #e74c3c; }
 .btn-save-modal {
   background: var(--accent);
