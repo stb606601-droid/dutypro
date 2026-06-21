@@ -39,9 +39,39 @@
   <!-- ===== AOS ===== -->
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
 
-  <!-- ===== HAPUS KONFLIK CSS DARI BOOTSTRAP/BULMA ===== -->
+  <!-- ===== SPLASH SCREEN CSS ===== -->
   <style>
-    /* Reset tambahan untuk menghilangkan konflik */
+    /* ============================================================
+       SPLASH SCREEN - FULLSCREEN GIF
+       ============================================================ */
+    #splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 99999;
+      background: #121212;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.6s ease;
+    }
+    #splash-screen.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #splash-screen img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    /* ============================================================
+       RESET TAMBAHAN UNTUK MENGHILANGKAN KONFLIK
+       ============================================================ */
     .container, .container-fluid, .row, .col {
       padding-left: 0 !important;
       padding-right: 0 !important;
@@ -62,140 +92,158 @@
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="app-header">
-  <h1><i class="fa-solid fa-helmet-safety"></i> DUTY PRO</h1>
-  <div id="signal-indicator" class="online">
-    <span class="signal-bar"></span>
-    <span class="signal-bar"></span>
-    <span class="signal-bar"></span>
-    <span class="signal-bar"></span>
-    <span id="signal-text">Online</span>
-  </div>
+<!-- ============================================================
+     SPLASH SCREEN (GIF)
+     ============================================================ -->
+<div id="splash-screen">
+  <img
+    src="https://raw.githubusercontent.com/stb606601-droid/dutypro/eb4275da8a232b3fa12c4e7a782788cfdddb7c50/splash.gif"
+    alt="Loading..."
+    id="splash-gif"
+  />
 </div>
 
-<!-- TAB BAR -->
-<div class="tab-bar">
-  <button class="tab-btn active" data-tab="preview"><i class="fa-regular fa-eye"></i> Preview</button>
-  <button class="tab-btn" data-tab="admin"><i class="fa-solid fa-user-shield"></i> Admin</button>
-  <button class="tab-btn" data-tab="stats"><i class="fa-solid fa-chart-bar"></i> Statistik</button>
-</div>
+<!-- ============================================================
+     KONTEN UTAMA (AWALNYA DISEMBUNYIKAN)
+     ============================================================ -->
+<div id="main-content" style="display: none;">
 
-<!-- ===== TAB PREVIEW ===== -->
-<div id="preview-tab" class="tab-content active">
-  <div id="preview-table-wrap" data-aos="fade-up">
-    <table id="preview-table">
-      <thead><tr><th>Tanggal</th><th>Bungkulan Post</th><th>Komodo Warehouse</th></tr></thead>
-      <tbody id="preview-body"><tr><td colspan="3" class="preview-empty">Memuat data...</td></tr></tbody>
-    </table>
-    <div class="button-group">
-      <button class="btn btn-share" onclick="shareToday()"><i class="fab fa-whatsapp"></i> Share</button>
-      <button class="btn btn-png" onclick="exportPNG()"><i class="fas fa-image"></i> PNG</button>
-      <button class="btn btn-pdf" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+  <!-- HEADER -->
+  <div class="app-header">
+    <h1><i class="fa-solid fa-helmet-safety"></i> DUTY PRO</h1>
+    <div id="signal-indicator" class="online">
+      <span class="signal-bar"></span>
+      <span class="signal-bar"></span>
+      <span class="signal-bar"></span>
+      <span class="signal-bar"></span>
+      <span id="signal-text">Online</span>
     </div>
   </div>
-</div>
 
-<!-- ===== TAB ADMIN ===== -->
-<div id="admin-tab" class="tab-content">
-  <!-- PIN Screen -->
-  <div id="admin-pin-screen">
-    <i class="fa-solid fa-lock"></i>
-    <p>Masukkan PIN untuk mengakses Admin</p>
-    <input type="password" id="pin-input" placeholder="MASUKKAN-PIN" maxlength="6" />
-    <br><br>
-    <button id="pin-login-btn">Masuk</button>
-    <p id="pin-error">PIN salah, coba lagi.</p>
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="preview"><i class="fa-regular fa-eye"></i> Preview</button>
+    <button class="tab-btn" data-tab="admin"><i class="fa-solid fa-user-shield"></i> Admin</button>
+    <button class="tab-btn" data-tab="stats"><i class="fa-solid fa-chart-bar"></i> Statistik</button>
   </div>
 
-  <!-- Admin Content -->
-  <div id="admin-content" style="display:none;" data-aos="fade-up">
-    <div class="clock-container"><div id="live-clock">--:--:--</div></div>
-    <div id="greeting"></div>
-
-    <!-- Pilih Bulan & Tahun -->
-    <div class="admin-controls">
-      <label><i class="fa-regular fa-calendar"></i> Bulan:
-        <select id="month-selector">
-          <option value="0">Januari</option>
-          <option value="1">Februari</option>
-          <option value="2">Maret</option>
-          <option value="3">April</option>
-          <option value="4">Mei</option>
-          <option value="5">Juni</option>
-          <option value="6">Juli</option>
-          <option value="7">Agustus</option>
-          <option value="8">September</option>
-          <option value="9">Oktober</option>
-          <option value="10">November</option>
-          <option value="11">Desember</option>
-        </select>
-      </label>
-      <label><i class="fa-regular fa-calendar"></i> Tahun:
-        <select id="year-selector"></select>
-      </label>
-      <button class="btn btn-save-modal" id="btn-go-month" style="padding:8px 20px;font-size:0.9rem;">
-        <i class="fa-solid fa-arrow-right"></i> Tampilkan
-      </button>
-    </div>
-
-    <div class="calendar" id="calendar"></div>
-    <div style="margin-top:12px; text-align:center; font-size:0.8rem; color:#888;">
-      <i class="fa-regular fa-circle-check"></i> Klik tanggal untuk mengisi jadwal
-    </div>
-    <div class="legend">
-      <span class="legend-item"><span class="legend-color yellow"></span> Sudah diisi</span>
-      <span class="legend-item"><span class="legend-color green"></span> Hari ini</span>
-      <span class="legend-item"><span class="legend-color empty"></span> Kosong</span>
-    </div>
-  </div>
-</div>
-
-<!-- ===== TAB STATISTIK ===== -->
-<div id="stats-tab" class="tab-content">
-  <div id="chart-container" data-aos="fade-up">
-    <h4><i class="fa-solid fa-chart-column"></i> Statistik Jumlah Jaga per Bulan</h4>
-    <canvas id="statsChart"></canvas>
-  </div>
-  <div class="bg-gray-800 rounded-2xl p-4 border border-gray-700" data-aos="fade-up" data-aos-delay="100">
-    <h4 class="text-gray-400 text-sm text-center mb-3"><i class="fa-solid fa-list-check"></i> Rekap Bulan Ini</h4>
-    <div id="rekap-bulan" class="text-center text-gray-300"></div>
-  </div>
-</div>
-
-<!-- ===== MODAL ===== -->
-<div class="modal" id="modal">
-  <div class="modal-content">
-    <button class="close-btn" onclick="closeModal()">✕</button>
-    <h3 id="modal-date">📅 Pilih Tanggal</h3>
-    <div class="modal-grid" id="modal-grid">
-      <div class="modal-col blue" id="col-bungkulan">
-        <h4><i class="fas fa-shield-halved" style="color:#2a7faa;"></i> BUNGKULAN POST</h4>
-        <div id="bungkulan-list"></div>
-      </div>
-      <div class="modal-col green" id="col-komodo">
-        <h4><i class="fas fa-dragon" style="color:#2ecc71;"></i> KOMODO WAREHOUSE</h4>
-        <div id="komodo-list"></div>
+  <!-- ===== TAB PREVIEW ===== -->
+  <div id="preview-tab" class="tab-content active">
+    <div id="preview-table-wrap" data-aos="fade-up">
+      <table id="preview-table">
+        <thead><tr><th>Tanggal</th><th>Bungkulan Post</th><th>Komodo Warehouse</th></tr></thead>
+        <tbody id="preview-body"><tr><td colspan="3" class="preview-empty">Memuat data...</td></tr></tbody>
+      </table>
+      <div class="button-group">
+        <button class="btn btn-share" onclick="shareToday()"><i class="fab fa-whatsapp"></i> Share</button>
+        <button class="btn btn-png" onclick="exportPNG()"><i class="fas fa-image"></i> PNG</button>
+        <button class="btn btn-pdf" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-save-modal" style="background:#555;color:white;" onclick="closeModal()">Batal</button>
-      <button class="btn-save-modal" id="modal-save-btn"><i class="fa-solid fa-floppy-disk"></i> Simpan</button>
+  </div>
+
+  <!-- ===== TAB ADMIN ===== -->
+  <div id="admin-tab" class="tab-content">
+    <!-- PIN Screen -->
+    <div id="admin-pin-screen">
+      <i class="fa-solid fa-lock"></i>
+      <p>Masukkan PIN untuk mengakses Admin</p>
+      <input type="password" id="pin-input" placeholder="MASUKKAN-PIN" maxlength="6" />
+      <br><br>
+      <button id="pin-login-btn">Masuk</button>
+      <p id="pin-error">PIN salah, coba lagi.</p>
+    </div>
+
+    <!-- Admin Content -->
+    <div id="admin-content" style="display:none;" data-aos="fade-up">
+      <div class="clock-container"><div id="live-clock">--:--:--</div></div>
+      <div id="greeting"></div>
+
+      <!-- Pilih Bulan & Tahun -->
+      <div class="admin-controls">
+        <label><i class="fa-regular fa-calendar"></i> Bulan:
+          <select id="month-selector">
+            <option value="0">Januari</option>
+            <option value="1">Februari</option>
+            <option value="2">Maret</option>
+            <option value="3">April</option>
+            <option value="4">Mei</option>
+            <option value="5">Juni</option>
+            <option value="6">Juli</option>
+            <option value="7">Agustus</option>
+            <option value="8">September</option>
+            <option value="9">Oktober</option>
+            <option value="10">November</option>
+            <option value="11">Desember</option>
+          </select>
+        </label>
+        <label><i class="fa-regular fa-calendar"></i> Tahun:
+          <select id="year-selector"></select>
+        </label>
+        <button class="btn btn-save-modal" id="btn-go-month" style="padding:8px 20px;font-size:0.9rem;">
+          <i class="fa-solid fa-arrow-right"></i> Tampilkan
+        </button>
+      </div>
+
+      <div class="calendar" id="calendar"></div>
+      <div style="margin-top:12px; text-align:center; font-size:0.8rem; color:#888;">
+        <i class="fa-regular fa-circle-check"></i> Klik tanggal untuk mengisi jadwal
+      </div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-color yellow"></span> Sudah diisi</span>
+        <span class="legend-item"><span class="legend-color green"></span> Hari ini</span>
+        <span class="legend-item"><span class="legend-color empty"></span> Kosong</span>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- ===== PRINT AREA ===== -->
-<div id="print-area">
-  <h2>🪖 DUTY SCHEDULE</h2>
-  <div class="sub-title">Daftar Jaga Pos Bungkulan &amp; Komodo Warehouse</div>
-  <table id="print-table"></table>
-  <div class="footer">Developer MangSatria Versi 2.0</div>
-</div>
+  <!-- ===== TAB STATISTIK ===== -->
+  <div id="stats-tab" class="tab-content">
+    <div id="chart-container" data-aos="fade-up">
+      <h4><i class="fa-solid fa-chart-column"></i> Statistik Jumlah Jaga per Bulan</h4>
+      <canvas id="statsChart"></canvas>
+    </div>
+    <div class="bg-gray-800 rounded-2xl p-4 border border-gray-700" data-aos="fade-up" data-aos-delay="100">
+      <h4 class="text-gray-400 text-sm text-center mb-3"><i class="fa-solid fa-list-check"></i> Rekap Bulan Ini</h4>
+      <div id="rekap-bulan" class="text-center text-gray-300"></div>
+    </div>
+  </div>
 
-<audio id="tingtong" preload="auto">
-  <source src="https://notificationsounds.com/storage/sounds/file-sounds-1157-ting-tong.mp3" type="audio/mpeg" />
-</audio>
+  <!-- ===== MODAL ===== -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">✕</button>
+      <h3 id="modal-date">📅 Pilih Tanggal</h3>
+      <div class="modal-grid" id="modal-grid">
+        <div class="modal-col blue" id="col-bungkulan">
+          <h4><i class="fas fa-shield-halved" style="color:#2a7faa;"></i> BUNGKULAN POST</h4>
+          <div id="bungkulan-list"></div>
+        </div>
+        <div class="modal-col green" id="col-komodo">
+          <h4><i class="fas fa-dragon" style="color:#2ecc71;"></i> KOMODO WAREHOUSE</h4>
+          <div id="komodo-list"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-save-modal" style="background:#555;color:white;" onclick="closeModal()">Batal</button>
+        <button class="btn-save-modal" id="modal-save-btn"><i class="fa-solid fa-floppy-disk"></i> Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PRINT AREA ===== -->
+  <div id="print-area">
+    <h2>🪖 DUTY SCHEDULE</h2>
+    <div class="sub-title">Daftar Jaga Pos Bungkulan &amp; Komodo Warehouse</div>
+    <table id="print-table"></table>
+    <div class="footer">Developer MangSatria Versi 2.0</div>
+  </div>
+
+  <audio id="tingtong" preload="auto">
+    <source src="https://notificationsounds.com/storage/sounds/file-sounds-1157-ting-tong.mp3" type="audio/mpeg" />
+  </audio>
+
+</div><!-- end #main-content -->
 
 <script>
   // ============================================================
@@ -221,6 +269,29 @@
   let isLoading = false;
   let supabaseClient = null;
   let chartInstance = null;
+
+  // ============================================================
+  //  SPLASH SCREEN - SEMBUNYIKAN SETELAH 3 DETIK
+  // ============================================================
+  document.addEventListener('DOMContentLoaded', function() {
+    // Tampilkan splash selama 3 detik, lalu sembunyikan
+    setTimeout(function() {
+      const splash = document.getElementById('splash-screen');
+      splash.classList.add('hide');
+
+      // Tampilkan konten utama setelah splash menghilang
+      const main = document.getElementById('main-content');
+      main.style.display = 'block';
+
+      // Inisialisasi AOS setelah konten muncul
+      if (typeof AOS !== 'undefined') {
+        AOS.init({ duration: 600, once: true, offset: 50 });
+      }
+
+      // Jalankan inisialisasi aplikasi
+      initApp();
+    }, 3000); // 3 detik
+  });
 
   // ============================================================
   //  HELPERS
@@ -820,16 +891,7 @@
   window.addEventListener('beforeinstallprompt', (e) => e.preventDefault());
 
   // ============================================================
-  //  AOS INIT
-  // ============================================================
-  document.addEventListener('DOMContentLoaded', function() {
-    if (typeof AOS !== 'undefined') {
-      AOS.init({ duration: 600, once: true, offset: 50 });
-    }
-  });
-
-  // ============================================================
-  //  INISIALISASI
+  //  INISIALISASI APLIKASI (DIPANGGIL SETELAH SPLASH HILANG)
   // ============================================================
   async function initApp() {
     populateYearSelector();
@@ -840,7 +902,23 @@
     console.log('✅ Aplikasi siap (CSS Fix - Stabil)');
   }
 
-  initApp();
+  // ============================================================
+  //  FALLBACK: JIKA SPLASH TIDAK MUNCUL (SAFETY NET)
+  // ============================================================
+  // Jika karena suatu hal splash tidak hilang dalam 5 detik,
+  // paksa tampilkan konten (sebagai cadangan)
+  setTimeout(function() {
+    const splash = document.getElementById('splash-screen');
+    const main = document.getElementById('main-content');
+    if (splash && !splash.classList.contains('hide')) {
+      splash.classList.add('hide');
+      main.style.display = 'block';
+      if (typeof AOS !== 'undefined') {
+        AOS.init({ duration: 600, once: true, offset: 50 });
+      }
+      initApp();
+    }
+  }, 5000);
 </script>
 </body>
 </html>
