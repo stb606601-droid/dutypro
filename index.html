@@ -664,19 +664,7 @@
       const now = new Date();
       const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
       document.getElementById('last-update').innerText = timeStr;
-      
-      Swal.fire({
-        icon: 'success',
-        title: '✅ Data Diperbarui!',
-        text: `Jadwal terbaru telah dimuat (${timeStr})`,
-        timer: 1500,
-        showConfirmButton: false,
-        background: '#1e1e1e',
-        color: '#fff',
-        position: 'top-end',
-        toast: true
-      });
-      
+
     } catch (error) {
       console.error('❌ Gagal refresh:', error);
       Swal.fire({
