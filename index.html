@@ -42,7 +42,7 @@
   <!-- ===== SPLASH SCREEN CSS ===== -->
   <style>
     /* ============================================================
-       SPLASH SCREEN
+       SPLASH SCREEN - TUNGGU KLIK USER
        ============================================================ */
     #splash-screen {
       position: fixed;
@@ -108,6 +108,26 @@
     }
     .splash-footer span {
       color: #f1c40f;
+    }
+
+    /* ============================================================
+       TEKS KLIK UNTUK MULAI (BLINK ANIMATION)
+       ============================================================ */
+    .splash-click-hint {
+      margin-top: 15px;
+      color: #888;
+      font-size: 0.8rem;
+      animation: blink 1.5s infinite;
+      cursor: default;
+      user-select: none;
+    }
+    .splash-click-hint i {
+      margin-right: 6px;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
     }
 
     /* ============================================================
@@ -182,6 +202,10 @@
     </div>
     <div class="splash-footer">
       Developer: <span>MangSatria</span> &nbsp;|&nbsp; <span>© 2026 v2.0</span>
+    </div>
+    <!-- TEKS KLIK UNTUK MULAI -->
+    <div class="splash-click-hint">
+      <i class="fa-solid fa-hand-pointer"></i> Klik di mana saja untuk mulai
     </div>
   </div>
 </div>
@@ -362,6 +386,7 @@
   let supabaseClient = null;
   let chartInstance = null;
   let autoRefreshInterval = null;
+  let isAppInitialized = false;
 
   // ============================================================
   //  🎵 AUDIO PLAYER LOGIC
@@ -412,37 +437,31 @@
   }
 
   // ============================================================
-  //  SPLASH SCREEN - SEMBUNYIKAN SETELAH 3 DETIK
+  //  HILANGKAN SPLASH SAAT USER KLIK
   // ============================================================
-  document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(function() {
-      const splash = document.getElementById('splash-screen');
+  function hideSplash() {
+    const splash = document.getElementById('splash-screen');
+    const main = document.getElementById('main-content');
+    
+    if (splash && !splash.classList.contains('hide')) {
       splash.classList.add('hide');
-
-      const main = document.getElementById('main-content');
       main.style.display = 'block';
-
+      
       if (typeof AOS !== 'undefined') {
         AOS.init({ duration: 600, once: true, offset: 50 });
       }
-
+      
       initAudio();
-      initApp();
-
-      const firstTouchHandler = function() {
-        playSplashAudio();
-        document.removeEventListener('touchstart', firstTouchHandler);
-        document.removeEventListener('click', firstTouchHandler);
-        console.log('👆 User first interaction - audio mulai');
-      };
-
-      document.addEventListener('touchstart', firstTouchHandler);
-      document.addEventListener('click', firstTouchHandler);
-
-      console.log('🎵 Menunggu sentuhan pertama untuk memutar audio...');
-
-    }, 3000);
-  });
+      playSplashAudio();
+      
+      if (!isAppInitialized) {
+        initApp();
+        isAppInitialized = true;
+      }
+      
+      console.log('👆 Splash dihilangkan oleh user');
+    }
+  }
 
   // ============================================================
   //  HELPERS
@@ -517,14 +536,14 @@
         .select('count', { count: 'exact', head: true });
         
       if (error) {
-        console.warn('⚠️ Test gagal:', error.message);
-        showStatus('error', '⚠️ Koneksi bermasalah: ' + error.message);
+        console.warn('⚠️ Test Supabase gagal:', error.message);
+        showStatus('error', '⚠️ Koneksi Supabase bermasalah: ' + error.message);
       } else {
-        console.log('✅ Koneksi berhasil!');
-        showStatus('success', '✅ Terhubung');
+        console.log('✅ Koneksi Supabase berhasil!');
+        showStatus('success', '✅ Terhubung ke Supabase');
       }
     } catch (error) {
-      console.warn('⚠️ Test error:', error);
+      console.warn('⚠️ Test Supabase error:', error);
     }
   }
 
@@ -534,7 +553,7 @@
   async function fetchJadwal() {
     if (isLoading) return;
     isLoading = true;
-    showStatus('info', '⏳ Mengambil jadwal...');
+    showStatus('info', '⏳ Mengambil data dari Supabase...');
     
     try {
       const client = getSupabase();
@@ -556,11 +575,11 @@
             komodo: row.komodo || []
           };
         });
-        console.log(`✅ ${data.length} jadwal terupdate`);
-        showStatus('success', `✅ jadwal terupdate`);
+        console.log(`✅ ${data.length} data jadwal dimuat dari Supabase`);
+        showStatus('success', `✅ ${data.length} data dimuat dari Supabase`);
       } else {
-        console.log('ℹ️ Tidak ada jadwal');
-        showStatus('info', 'ℹ️ Belum ada jadwal. Silakan tambahkan melalui Admin.');
+        console.log('ℹ️ Tidak ada data di Supabase');
+        showStatus('info', 'ℹ️ Belum ada data jadwal. Silakan tambahkan melalui Admin.');
       }
       
       renderPreview();
@@ -608,7 +627,7 @@
       Swal.fire({
         icon: 'success',
         title: 'Berhasil!',
-        text: 'Jadwal berhasil disimpan',
+        text: 'Jadwal berhasil disimpan ke Supabase',
         timer: 1500,
         showConfirmButton: false,
         background: '#1e1e1e',
@@ -703,7 +722,6 @@
   //  SEMUA DATA TETAP TAMPIL UNTUK MONITORING
   // ============================================================
   function autoDeleteExpired() {
-    // FUNGSI DINONAKTIFKAN - TIDAK ADA DATA YANG DIHAPUS
     console.log('🗑️ Auto delete: NONAKTIF (semua data tetap tampil)');
     return;
   }
@@ -1184,7 +1202,6 @@
       if (target) target.classList.add('active');
 
       if (tab === 'preview') {
-        // Auto refresh saat buka Preview
         refreshData();
       }
       if (tab === 'admin') {
@@ -1215,16 +1232,14 @@
     await fetchJadwal();
     autoDeleteExpired();
     
-    // Set waktu terakhir update
     const now = new Date();
     document.getElementById('last-update').innerText = 
       `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
     
-    // Aktifkan auto refresh setiap 60 detik (opsional)
     startAutoRefresh();
     
     document.querySelector('.tab-btn[data-tab="preview"]').click();
-    console.log('✅ Aplikasi siap (Refresh manual & auto)');
+    console.log('✅ Aplikasi siap (Klik splash untuk mulai)');
   }
 
   // ============================================================
@@ -1238,21 +1253,16 @@
   });
 
   // ============================================================
-  //  FALLBACK: JIKA SPLASH TIDAK MUNCUL (SAFETY NET)
+  //  EVENT LISTENER UNTUK KLIK/TOUCH - HILANGKAN SPLASH
   // ============================================================
-  setTimeout(function() {
-    const splash = document.getElementById('splash-screen');
-    const main = document.getElementById('main-content');
-    if (splash && !splash.classList.contains('hide')) {
-      splash.classList.add('hide');
-      main.style.display = 'block';
-      if (typeof AOS !== 'undefined') {
-        AOS.init({ duration: 600, once: true, offset: 50 });
-      }
-      initAudio();
-      initApp();
-    }
-  }, 5000);
+  document.addEventListener('click', hideSplash);
+  document.addEventListener('touchstart', hideSplash);
+
+  // ============================================================
+  //  FALLBACK: JIKA TIDAK ADA INTERAKSI DALAM 10 DETIK
+  //  (SAFETY NET - TAPI TETAP TUNGGU KLIK)
+  // ============================================================
+  console.log('📱 Klik di mana saja untuk memulai aplikasi');
 </script>
 </body>
 </html>
