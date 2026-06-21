@@ -42,7 +42,7 @@
   <!-- ===== SPLASH SCREEN CSS ===== -->
   <style>
     /* ============================================================
-       SPLASH SCREEN - FULLSCREEN GIF
+       SPLASH SCREEN - FULLSCREEN GIF + TEKS
        ============================================================ */
     #splash-screen {
       position: fixed;
@@ -53,6 +53,7 @@
       z-index: 99999;
       background: #121212;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       transition: opacity 0.6s ease;
@@ -61,12 +62,54 @@
       opacity: 0;
       pointer-events: none;
     }
-    #splash-screen img {
+
+    /* Konten splash: judul + GIF + footer */
+    .splash-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       width: 100%;
-      height: 100%;
-      object-fit: contain;
-      max-width: 100%;
-      max-height: 100%;
+      max-width: 500px;
+      padding: 20px;
+      text-align: center;
+    }
+    .splash-title {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    .splash-title i {
+      color: #f1c40f;
+      margin-right: 8px;
+    }
+    .splash-gif-wrapper {
+      width: 100%;
+      max-width: 380px;
+      margin: 5px 0;
+    }
+    .splash-gif-wrapper img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    }
+    .splash-footer {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #aaa;
+      letter-spacing: 1px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 15px;
+      width: 80%;
+      max-width: 300px;
+    }
+    .splash-footer span {
+      color: #f1c40f;
     }
 
     /* ============================================================
@@ -93,14 +136,27 @@
 <body>
 
 <!-- ============================================================
-     SPLASH SCREEN (GIF)
+     SPLASH SCREEN (GIF + JUDUL + FOOTER)
      ============================================================ -->
 <div id="splash-screen">
-  <img
-    src="https://raw.githubusercontent.com/stb606601-droid/dutypro/eb4275da8a232b3fa12c4e7a782788cfdddb7c50/splash.gif"
-    alt="Loading..."
-    id="splash-gif"
-  />
+  <div class="splash-content">
+    <!-- Judul Aplikasi -->
+    <div class="splash-title">
+      <i class="fa-solid fa-helmet-safety"></i> DUTY PRO
+    </div>
+    <!-- Gambar GIF -->
+    <div class="splash-gif-wrapper">
+      <img
+        src="https://raw.githubusercontent.com/stb606601-droid/dutypro/eb4275da8a232b3fa12c4e7a782788cfdddb7c50/splash.gif"
+        alt="Loading..."
+        id="splash-gif"
+      />
+    </div>
+    <!-- Footer Kredit -->
+    <div class="splash-footer">
+      Developer: <span>MangSatria</span> &nbsp;|&nbsp; <span>© 2026 v2.0</span>
+    </div>
+  </div>
 </div>
 
 <!-- ============================================================
@@ -905,8 +961,6 @@
   // ============================================================
   //  FALLBACK: JIKA SPLASH TIDAK MUNCUL (SAFETY NET)
   // ============================================================
-  // Jika karena suatu hal splash tidak hilang dalam 5 detik,
-  // paksa tampilkan konten (sebagai cadangan)
   setTimeout(function() {
     const splash = document.getElementById('splash-screen');
     const main = document.getElementById('main-content');
