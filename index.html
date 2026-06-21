@@ -203,7 +203,6 @@
     <div class="splash-footer">
       Developer: <span>MangSatria</span> &nbsp;|&nbsp; <span>© 2026 v2.0</span>
     </div>
-    <!-- TEKS KLIK UNTUK MULAI -->
     <div class="splash-click-hint">
       <i class="fa-solid fa-hand-pointer"></i> Klik di mana saja untuk mulai
     </div>
@@ -254,7 +253,7 @@
         <tbody id="preview-body"><tr><td colspan="3" class="preview-empty">Memuat data...</td></tr></tbody>
       </table>
       <div class="button-group">
-        <button class="btn btn-share" onclick="shareToday()"><i class="fab fa-whatsapp"></i> kirim-whatsapp</button>
+        <button class="btn btn-share" onclick="shareToday()"><i class="fab fa-whatsapp"></i> Share</button>
         <button class="btn btn-png" onclick="exportPNG()"><i class="fas fa-image"></i> PNG</button>
         <button class="btn btn-pdf" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
       </div>
@@ -385,7 +384,6 @@
   let isLoading = false;
   let supabaseClient = null;
   let chartInstance = null;
-  let autoRefreshInterval = null;
   let isAppInitialized = false;
 
   // ============================================================
@@ -649,7 +647,7 @@
   }
 
   // ============================================================
-  //  🔄 REFRESH DATA (TANPA RELOAD HALAMAN)
+  //  🔄 REFRESH DATA (MANUAL - TANPA AUTO)
   // ============================================================
   async function refreshData() {
     console.log('🔄 Refresh data...');
@@ -698,23 +696,6 @@
       btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Refresh Data';
       btn.disabled = false;
     }
-  }
-
-  // ============================================================
-  //  AUTO REFRESH SETIAP 60 DETIK (OPSIONAL)
-  // ============================================================
-  function startAutoRefresh() {
-    if (autoRefreshInterval) {
-      clearInterval(autoRefreshInterval);
-    }
-    
-    autoRefreshInterval = setInterval(() => {
-      const previewTab = document.getElementById('preview-tab');
-      if (previewTab && previewTab.classList.contains('active')) {
-        console.log('⏰ Auto refresh...');
-        refreshData();
-      }
-    }, 60000);
   }
 
   // ============================================================
@@ -1188,7 +1169,7 @@
   }
 
   // ============================================================
-  //  TAB SWITCHING (DENGAN AUTO REFRESH SAAT BUKA PREVIEW)
+  //  TAB SWITCHING (DENGAN REFRESH SAAT BUKA PREVIEW)
   // ============================================================
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function() {
@@ -1236,21 +1217,12 @@
     document.getElementById('last-update').innerText = 
       `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
     
-    startAutoRefresh();
+    // 🔴 AUTO REFRESH DINONAKTIFKAN - HANYA REFRESH MANUAL VIA TOMBOL
+    // startAutoRefresh(); // COMMENT - TIDAK DIPAKAI
     
     document.querySelector('.tab-btn[data-tab="preview"]').click();
-    console.log('✅ Aplikasi siap (Klik splash untuk mulai)');
+    console.log('✅ Aplikasi siap (Auto refresh OFF, refresh manual via tombol)');
   }
-
-  // ============================================================
-  //  CLEANUP: Hentikan auto refresh saat tab ditutup
-  // ============================================================
-  window.addEventListener('beforeunload', function() {
-    if (autoRefreshInterval) {
-      clearInterval(autoRefreshInterval);
-      console.log('⏹️ Auto refresh dihentikan');
-    }
-  });
 
   // ============================================================
   //  EVENT LISTENER UNTUK KLIK/TOUCH - HILANGKAN SPLASH
@@ -1259,8 +1231,7 @@
   document.addEventListener('touchstart', hideSplash);
 
   // ============================================================
-  //  FALLBACK: JIKA TIDAK ADA INTERAKSI DALAM 10 DETIK
-  //  (SAFETY NET - TAPI TETAP TUNGGU KLIK)
+  //  FALLBACK: JIKA TIDAK ADA INTERAKSI
   // ============================================================
   console.log('📱 Klik di mana saja untuk memulai aplikasi');
 </script>
