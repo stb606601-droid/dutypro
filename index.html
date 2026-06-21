@@ -517,14 +517,14 @@
         .select('count', { count: 'exact', head: true });
         
       if (error) {
-        console.warn('⚠️ Test Supabase gagal:', error.message);
-        showStatus('error', '⚠️ Koneksi Supabase bermasalah: ' + error.message);
+        console.warn('⚠️ Test gagal:', error.message);
+        showStatus('error', '⚠️ Koneksi bermasalah: ' + error.message);
       } else {
-        console.log('✅ Koneksi Supabase berhasil!');
-        showStatus('success', '✅ Terhubung ke Supabase');
+        console.log('✅ Koneksi berhasil!');
+        showStatus('success', '✅ Terhubung');
       }
     } catch (error) {
-      console.warn('⚠️ Test Supabase error:', error);
+      console.warn('⚠️ Test error:', error);
     }
   }
 
@@ -534,7 +534,7 @@
   async function fetchJadwal() {
     if (isLoading) return;
     isLoading = true;
-    showStatus('info', '⏳ Mengambil data dari Supabase...');
+    showStatus('info', '⏳ Mengambil jadwal...');
     
     try {
       const client = getSupabase();
@@ -556,11 +556,11 @@
             komodo: row.komodo || []
           };
         });
-        console.log(`✅ ${data.length} data jadwal dimuat dari Supabase`);
-        showStatus('success', `✅ ${data.length} data dimuat dari Supabase`);
+        console.log(`✅ ${data.length} jadwal terupdate`);
+        showStatus('success', `✅ jadwal terupdate`);
       } else {
-        console.log('ℹ️ Tidak ada data di Supabase');
-        showStatus('info', 'ℹ️ Belum ada data jadwal. Silakan tambahkan melalui Admin.');
+        console.log('ℹ️ Tidak ada jadwal');
+        showStatus('info', 'ℹ️ Belum ada jadwal. Silakan tambahkan melalui Admin.');
       }
       
       renderPreview();
@@ -608,7 +608,7 @@
       Swal.fire({
         icon: 'success',
         title: 'Berhasil!',
-        text: 'Jadwal berhasil disimpan ke Supabase',
+        text: 'Jadwal berhasil disimpan',
         timer: 1500,
         showConfirmButton: false,
         background: '#1e1e1e',
@@ -699,21 +699,13 @@
   }
 
   // ============================================================
-  //  AUTO DELETE EXPIRED
+  //  AUTO DELETE EXPIRED - DINONAKTIFKAN
+  //  SEMUA DATA TETAP TAMPIL UNTUK MONITORING
   // ============================================================
   function autoDeleteExpired() {
-    const todayStr = formatDate(new Date());
-    let hasDeleted = false;
-    for (const [tgl] of Object.entries(dataJadwal)) {
-      if (tgl < todayStr) {
-        delete dataJadwal[tgl];
-        hasDeleted = true;
-      }
-    }
-    if (hasDeleted) {
-      renderPreview();
-      if (isAdmin) renderCalendar(currentMonth, currentYear);
-    }
+    // FUNGSI DINONAKTIFKAN - TIDAK ADA DATA YANG DIHAPUS
+    console.log('🗑️ Auto delete: NONAKTIF (semua data tetap tampil)');
+    return;
   }
 
   // ============================================================
