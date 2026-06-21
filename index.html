@@ -573,10 +573,10 @@
             komodo: row.komodo || []
           };
         });
-        console.log(`✅ ${data.length} data jadwal dimuat dari Supabase`);
-        showStatus('success', `✅ ${data.length} data dimuat dari Supabase`);
+        console.log(`✅ ${data.length} data jadwal dimuat..`);
+        showStatus('success', `✅ ${data.length} data dimuat..`);
       } else {
-        console.log('ℹ️ Tidak ada data di Supabase');
+        console.log('ℹ️ Tidak ada data');
         showStatus('info', 'ℹ️ Belum ada data jadwal. Silakan tambahkan melalui Admin.');
       }
       
@@ -598,7 +598,7 @@
   async function saveJadwal(tanggal, bungkulan, komodo) {
     try {
       const client = getSupabase();
-      if (!client) throw new Error('Supabase tidak terinisialisasi');
+      if (!client) throw new Error('tidak terinisialisasi');
       
       if (!tanggal) throw new Error('Tanggal tidak valid');
       
@@ -621,17 +621,7 @@
       if (error) throw error;
       
       console.log(`✅ Jadwal ${tanggal} berhasil disimpan`);
-      
-      Swal.fire({
-        icon: 'success',
-        title: 'Berhasil!',
-        text: 'Jadwal berhasil disimpan ke Supabase',
-        timer: 1500,
-        showConfirmButton: false,
-        background: '#1e1e1e',
-        color: '#fff'
-      });
-      
+                
       await fetchJadwal();
       
     } catch (err) {
