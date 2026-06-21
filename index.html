@@ -295,9 +295,9 @@
     <div class="footer">Developer MangSatria Versi 2.0</div>
   </div>
 
-  <audio id="tingtong" preload="auto">
-    <source src="https://notificationsounds.com/storage/sounds/file-sounds-1157-ting-tong.mp3" type="audio/mpeg" />
-  </audio>
+  <!-- ===== AUDIO PLAYER (TIDAK TAMPAK) ===== -->
+  <audio id="audio-splash" preload="auto" src="audio/splash.mp3"></audio>
+  <audio id="audio-background" preload="auto" src="audio/background.mp3" loop></audio>
 
 </div><!-- end #main-content -->
 
@@ -327,6 +327,59 @@
   let chartInstance = null;
 
   // ============================================================
+  //  🎵 AUDIO PLAYER LOGIC
+  //  ============================================================
+  let audioSplash = null;
+  let audioBackground = null;
+  let isAudioStarted = false;
+
+  function initAudio() {
+    audioSplash = document.getElementById('audio-splash');
+    audioBackground = document.getElementById('audio-background');
+
+    if (!audioSplash || !audioBackground) {
+      console.warn('Elemen audio tidak ditemukan!');
+      return;
+    }
+
+    // Set volume
+    audioSplash.volume = 0.8;
+    audioBackground.volume = 0.4;
+
+    // Saat splash selesai, putar background looping
+    audioSplash.addEventListener('ended', function() {
+      console.log('🎵 Splash selesai, mulai background loop...');
+      audioBackground.play().catch(e => console.warn('Gagal putar background:', e));
+    });
+
+    // Jika ada error pada splash, langsung putar background
+    audioSplash.addEventListener('error', function(e) {
+      console.warn('⚠️ Gagal memuat splash.mp3, langsung putar background.');
+      audioBackground.play().catch(err => console.warn('Gagal putar background:', err));
+    });
+  }
+
+  function playSplashAudio() {
+    if (isAudioStarted) return;
+    isAudioStarted = true;
+
+    if (!audioSplash) {
+      initAudio();
+    }
+
+    // Coba putar splash
+    audioSplash.play()
+      .then(() => {
+        console.log('🎵 Splash audio diputar...');
+      })
+      .catch(err => {
+        console.warn('⚠️ Gagal putar splash, langsung putar background:', err);
+        // Jika gagal, langsung putar background
+        audioBackground.play().catch(e => console.warn('Gagal putar background:', e));
+      });
+  }
+
+  // ============================================================
   //  SPLASH SCREEN - SEMBUNYIKAN SETELAH 3 DETIK
   // ============================================================
   document.addEventListener('DOMContentLoaded', function() {
@@ -344,8 +397,26 @@
         AOS.init({ duration: 600, once: true, offset: 50 });
       }
 
+      // Inisialisasi audio (siapkan, tapi belum diputar)
+      initAudio();
+
       // Jalankan inisialisasi aplikasi
       initApp();
+
+      // Pasang listener untuk sentuhan/klik pertama kali
+      const firstTouchHandler = function() {
+        playSplashAudio();
+        // Lepaskan listener setelah pertama kali dipanggil
+        document.removeEventListener('touchstart', firstTouchHandler);
+        document.removeEventListener('click', firstTouchHandler);
+        console.log('👆 User first interaction - audio mulai');
+      };
+
+      document.addEventListener('touchstart', firstTouchHandler);
+      document.addEventListener('click', firstTouchHandler);
+
+      console.log('🎵 Menunggu sentuhan pertama untuk memutar audio...');
+
     }, 3000); // 3 detik
   });
 
@@ -669,8 +740,6 @@
   //  SHARE WHATSAPP
   // ============================================================
   window.shareToday = function() {
-    const ting = document.getElementById('tingtong');
-    if (ting) ting.play().catch(()=>{});
     const dateStr = formatDate(new Date());
     const data = dataJadwal[dateStr];
     if (!data || (!data.bungkulan?.length && !data.komodo?.length)) {
@@ -970,6 +1039,7 @@
       if (typeof AOS !== 'undefined') {
         AOS.init({ duration: 600, once: true, offset: 50 });
       }
+      initAudio();
       initApp();
     }
   }, 5000);
