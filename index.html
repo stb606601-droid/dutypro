@@ -757,7 +757,7 @@
     }
 
     const bulanNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-    document.getElementById('greeting').innerText = `👮 ${bulanNames[month]} ${year}`;
+    document.getElementById('greeting').innerText = `🗓️ ${bulanNames[month]} ${year}`;
   }
 
   // ============================================================
@@ -769,7 +769,7 @@
       return;
     }
     const modal = document.getElementById('modal');
-    document.getElementById('modal-date').innerText = '📅 ' + formatTanggalLengkap(dateStr);
+    document.getElementById('modal-date').innerText = '🗓️ ' + formatTanggalLengkap(dateStr);
     if (!dataJadwal[dateStr]) dataJadwal[dateStr] = { bungkulan: [], komodo: [] };
 
     const bungkulanList = document.getElementById('bungkulan-list');
@@ -901,10 +901,10 @@
       return;
     }
     const teks =
-      `🪖 *DUTY SCHEDULE*\n━━━━━━━━━━━━━━━━\n📅 ${formatTanggalLengkap(dateStr)}\n\n` +
+      `🪖 *DUTY SCHEDULE*\n━━━━━━━━━━━━━━━━━\n🗓️ ${formatTanggalLengkap(dateStr)}\n\n` +
       `🔵 *BUNGKULAN POST*\n${(data.bungkulan?.length ? data.bungkulan.map((n,i)=>`${i+1}. 🪖 ${n}`).join('\n') : '   -')}` +
       `\n\n🟢 *KOMODO WAREHOUSE*\n${(data.komodo?.length ? data.komodo.map((n,i)=>`${i+1}. 🪖 ${n}`).join('\n') : '   -')}` +
-      `\n\n━━━━━━━━━━━━━━━━\n#DutyToday`;
+      `\n\n━━━━━━━━━━━━━━━━━\n#DutyToday`;
     window.open(`https://wa.me/?text=${encodeURIComponent(teks)}`, '_blank');
   };
 
